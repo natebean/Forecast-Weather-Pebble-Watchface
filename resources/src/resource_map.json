@@ -9,7 +9,7 @@
         },
         {
             "trackingAdjust": 3,
-            "characterRegex": "[0-9adeFhiMnorSTtuW ]",
+            "characterRegex": "[0-9:a-z:A-Z:\u00b0\\::.: ]",
             "defName": "FUTURA_18",
             "type": "font",
             "file": "fonts/futura.ttf"

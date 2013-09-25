@@ -5,7 +5,6 @@
 #include "http.h"
 #include "util.h"
 #include "weather_layer.h"
-//#include "time_layer.h"
 #include "link_monitor.h"
 #include "config.h"
 
@@ -17,8 +16,8 @@ PBL_APP_INFO(MY_UUID,
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
 
-#define TIME_FRAME      (GRect(0, 2, 144, 168-6))
-#define DATE_FRAME      (GRect(1, 65, 144, 168-62))
+/*#define TIME_FRAME      (GRect(0, 2, 144, 168-6))*/
+/*#define DATE_FRAME      (GRect(1, 65, 144, 168-62))*/
 
 // POST variables
 #define WEATHER_KEY_LATITUDE 1
@@ -34,7 +33,6 @@ PBL_APP_INFO(MY_UUID,
 
 Window window;          /* main window */
 TextLayer date_layer;   /* layer for the date */
-//TimeLayer time_layer;   /* layer for the time */
 TextLayer time_layer;   /* layer for the time */
 
 GFont font_date;        /* font for date */
@@ -56,16 +54,13 @@ void current_time_text(char * output_string, int string_size);
 
 void failed(int32_t cookie, int http_status, void* context) {
 	if(cookie == 0 || cookie == WEATHER_HTTP_COOKIE) {
-		//weather_layer_set_icon(&weather_layer, WEATHER_ICON_NO_WEATHER);
-		//text_layer_set_text(&weather_layer.temp_layer, "---°   ");
-		//text_layer_set_font(&weather_layer.temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_14)));
 		if (http_status== 1002 || http_status == 1064){
 		  static char time_string[] = "99:99";	
 		  current_time_text(time_string, sizeof(time_string));
 		  static char output_string[10] = "R 99:99";
 		  memmove(&output_string[2], &time_string,sizeof(time_string)-1);
 		  text_layer_set_text(&weather_layer.message_layer, output_string);
-		   
+
 		  located = false;
 		  request_weather();
 		}else if (http_status==1008){
@@ -129,9 +124,7 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
     * layers.
     */
     static char date_text[] = "XXX 00";
-    //static char hour_text[] = "00";
-    //static char minute_text[] = ":00";
-	static char time_string[] = "99:99";	
+	  static char time_string[] = "99:99";	
 
     (void)ctx;  /* prevent "unused parameter" warning */
 
@@ -151,30 +144,7 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
 		}
         text_layer_set_text(&date_layer, date_text);
     }
-   /*
-    if (clock_is_24h_style())
-    {
-        string_format_time(hour_text, sizeof(hour_text), "%H", t->tick_time);
-		if (hour_text[0] == '0')
-        {
-            // This is a hack to get rid of the leading zero of the hour.
-            memmove(&hour_text[0], &hour_text[1], sizeof(hour_text) - 1);
-        }
-    }
-    else
-    {
-        string_format_time(hour_text, sizeof(hour_text), "%I", t->tick_time);
-        if (hour_text[0] == '0')
-        {
-            // This is a hack to get rid of the leading zero of the hour.
-            
-            memmove(&hour_text[0], &hour_text[1], sizeof(hour_text) - 1);
-        }
-    }
 
-    string_format_time(minute_text, sizeof(minute_text), ":%M", t->tick_time);
-    */
-    //time_layer_set_text(&time_layer, hour_text, minute_text);
 	current_time_text(time_string,sizeof(time_string));
 	text_layer_set_text(&time_layer, time_string);
 	
@@ -208,35 +178,36 @@ void handle_init(AppContextRef ctx)
     resource_init_current_app(&APP_RESOURCES);
 
     res_d = resource_get_handle(RESOURCE_ID_FUTURA_18);
-    res_h = resource_get_handle(RESOURCE_ID_FUTURA_40);
+    /*res_h = resource_get_handle(RESOURCE_ID_FUTURA_40);*/
+    res_h = resource_get_handle(RESOURCE_ID_FUTURA_35);
 
     font_date = fonts_load_custom_font(res_d);
     font_hour = fonts_load_custom_font(res_h);
     font_minute = fonts_load_custom_font(res_h);
 
 	//Add simple time layer
-    //text_layer_init(&time_layer, window.layer.frame);
-    text_layer_init(&time_layer, GRect(0,0,75,20));
-	//text_layer_init(&weather_layer->temp_layer_background, GRect(0, 10, 144, 68));
+    /*text_layer_init(&time_layer, window.layer.frame);*/
+    text_layer_init(&time_layer, GRect(0,0,80,40));
     text_layer_set_text_color(&time_layer, GColorWhite);
     text_layer_set_text_alignment(&time_layer, GTextAlignmentCenter);
     text_layer_set_background_color(&time_layer, GColorClear);
     text_layer_set_font(&time_layer, font_hour);
-    layer_set_frame(&time_layer.layer, TIME_FRAME);
+    /*layer_set_frame(&time_layer.layer, TIME_FRAME);*/
     layer_add_child(&window.layer, &time_layer.layer);
 
 	//Add date layer
-    //text_layer_init(&date_layer, window.layer.frame);
-    text_layer_init(&date_layer, GRect(0,20,75,20));
+    /*text_layer_init(&date_layer, window.layer.frame);*/
+    text_layer_init(&date_layer, GRect(0,35,80,20));
     text_layer_set_text_color(&date_layer, GColorWhite);
     text_layer_set_background_color(&date_layer, GColorClear);
     text_layer_set_font(&date_layer, font_date);
     text_layer_set_text_alignment(&date_layer, GTextAlignmentCenter);
-    layer_set_frame(&date_layer.layer, DATE_FRAME);
+    /*layer_set_frame(&date_layer.layer, GRect(0,20,75,20);*/
     layer_add_child(&window.layer, &date_layer.layer);
 
 	// Add weather layer
-	weather_layer_init(&weather_layer, GPoint(0, 90));
+	/*weather_layer_init(&weather_layer, GPoint(0, 90));*/
+	weather_layer_init(&weather_layer, GPoint(80, 0));
 	layer_add_child(&window.layer, &weather_layer.layer);
 	
 	http_register_callbacks((HTTPCallbacks){
