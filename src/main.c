@@ -117,7 +117,7 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     memcpy(today_temp_max, itoa(today_max_temp_tuple->value->int16), 4);
   }
   if(today_min_temp_tuple && today_max_temp_tuple){
-    static char min_max_string[12];
+    static char min_max_string[12] = "";
     strcat(&min_max_string[0],&today_temp_min[0]);
     strcat(&min_max_string[0],"/");
     strcat(&min_max_string[0],&today_temp_max[0]);
@@ -126,23 +126,13 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
   Tuple* sunrise_tuple = dict_find(received, WEATHER_KEY_SUNRISE);
   Tuple* sunset_tuple = dict_find(received, WEATHER_KEY_SUNSET);
   if(sunrise_tuple && sunset_tuple) {
-    static char sunrise_set_string[14];
+    static char sunrise_set_string[14] = "";
     strcat(&sunrise_set_string[0],sunrise_tuple->value->cstring);
     strcat(&sunrise_set_string[0],"/");
     strcat(&sunrise_set_string[0],sunset_tuple->value->cstring);
     text_layer_set_text(&sunrise_set_layer, sunrise_set_string);
   }
 
-  /*Tuple* sunrise_tuple = dict_find(received, WEATHER_KEY_SUNRISE);*/
-  /*if(sunrise_tuple) {*/
-    /*text_layer_set_text(&sunrise_layer, sunrise_tuple->value->cstring);*/
-  /*}*/
-  /*Tuple* sunset_tuple = dict_find(received, WEATHER_KEY_SUNSET);*/
-  /*if(sunset_tuple) {*/
-    /*text_layer_set_text(&sunset_layer, sunset_tuple->value->cstring);*/
-    /*[>text_layer_set_text(&sunset_layer, "Sunset");<]*/
-  /*}*/
-	
 	link_monitor_handle_success();
 }
 
@@ -214,7 +204,6 @@ void handle_init(AppContextRef ctx)
     PebbleTickEvent t;
     ResHandle res_d;
     ResHandle res_h;
-    /*ResHandle res_m;*/
     ResHandle res_small;
     ResHandle res_very_small;
 
@@ -227,7 +216,7 @@ void handle_init(AppContextRef ctx)
     res_d = resource_get_handle(RESOURCE_ID_FUTURA_18);
     res_h = resource_get_handle(RESOURCE_ID_FUTURA_24);
     res_small = resource_get_handle(RESOURCE_ID_FUTURA_14);
-    res_very_small = resource_get_handle(RESOURCE_ID_FUTURA_10);
+    res_very_small = resource_get_handle(RESOURCE_ID_FUTURA_12);
 
     font_date = fonts_load_custom_font(res_d);
     font_hour = fonts_load_custom_font(res_h);
@@ -254,7 +243,7 @@ void handle_init(AppContextRef ctx)
 
 
 	//Add sunrise_set layer
-    text_layer_init(&sunrise_set_layer, GRect(0,55,80,20));
+    text_layer_init(&sunrise_set_layer, GRect(0,55,90,20));
     text_layer_set_text_color(&sunrise_set_layer, GColorWhite);
     text_layer_set_background_color(&sunrise_set_layer, GColorClear);
     text_layer_set_font(&sunrise_set_layer, font_very_small);
