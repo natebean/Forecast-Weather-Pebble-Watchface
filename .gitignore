@@ -8,3 +8,4 @@ resources/wscript
 tools
 waf
 wscript
+.DS_STORE

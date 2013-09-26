@@ -70,7 +70,7 @@ void weather_layer_set_temperature(WeatherLayer* weather_layer, int16_t t) {
 	memcpy(weather_layer->temp_str, itoa(t), 4);
 	int degree_pos = strlen(weather_layer->temp_str);
 	
-	if (strlen(weather_layer->temp_str) == 1 || 
+	if (strlen(weather_layer->temp_str) == 1 ||
 		(strlen(weather_layer->temp_str) == 2 && weather_layer->temp_str[0] != '1')) {
 	  // Don't move temperature if between 0-9° or 20°-99°
 		/*text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_40)));*/
