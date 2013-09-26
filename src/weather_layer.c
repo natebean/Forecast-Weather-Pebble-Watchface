@@ -18,31 +18,51 @@ static uint8_t WEATHER_ICONS[] = {
 	RESOURCE_ID_ICON_ERROR,
 };
 
-#define WIDTH 59
-#define HEIGHT 80
+#define WIDTH 65
+#define HEIGHT 122
 
 void weather_layer_init(WeatherLayer* weather_layer, GPoint pos) {
 	//layer_init(&weather_layer->layer, GRect(pos.x, pos.y, 144, 80));
 	layer_init(&weather_layer->layer, GRect(pos.x, pos.y, WIDTH, HEIGHT));
 	
 	// Add background layer
-	text_layer_init(&weather_layer->temp_layer_background, GRect(0, 0, WIDTH, 104));
-	text_layer_set_background_color(&weather_layer->temp_layer_background, GColorWhite);
+	text_layer_init(&weather_layer->temp_layer_background, GRect(0, 0, WIDTH, HEIGHT));
+	text_layer_set_background_color(&weather_layer->temp_layer_background, GColorBlack);
 	layer_add_child(&weather_layer->layer, &weather_layer->temp_layer_background.layer);
 	
     // Add temperature layer
 	text_layer_init(&weather_layer->temp_layer, GRect(0, 40, WIDTH, 20));
 	text_layer_set_background_color(&weather_layer->temp_layer, GColorClear);
 	text_layer_set_text_alignment(&weather_layer->temp_layer, GTextAlignmentCenter);
+	text_layer_set_text_color(&weather_layer->temp_layer, GColorWhite);
 	text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));
+  text_layer_set_text(&weather_layer->temp_layer, "TBD");
 	layer_add_child(&weather_layer->layer, &weather_layer->temp_layer.layer);
 	
+    /*// Add hi_low_temp_layer*/
+  text_layer_init(&weather_layer->min_max_temp_layer, GRect(0, 60, WIDTH, 20));
+  text_layer_set_background_color(&weather_layer->min_max_temp_layer, GColorBlack);
+  text_layer_set_text_alignment(&weather_layer->min_max_temp_layer, GTextAlignmentCenter);
+  text_layer_set_text_color(&weather_layer->min_max_temp_layer, GColorWhite);
+  text_layer_set_font(&weather_layer->min_max_temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_14)));
+  layer_add_child(&weather_layer->layer, &weather_layer->min_max_temp_layer.layer);
+  text_layer_set_text(&weather_layer->min_max_temp_layer, "hltemp");
+
+    /*// Add hi_low_time_layer*/
+  text_layer_init(&weather_layer->min_max_time_layer, GRect(0, 80, WIDTH, 20));
+  text_layer_set_background_color(&weather_layer->min_max_time_layer, GColorBlack);
+  text_layer_set_text_alignment(&weather_layer->min_max_time_layer, GTextAlignmentCenter);
+  text_layer_set_text_color(&weather_layer->min_max_time_layer, GColorWhite);
+  text_layer_set_font(&weather_layer->min_max_time_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_10)));
+  layer_add_child(&weather_layer->layer, &weather_layer->min_max_time_layer.layer);
+  text_layer_set_text(&weather_layer->min_max_time_layer, "hltime");
+
     // Add message layer
-	text_layer_init(&weather_layer->message_layer, GRect(0, 62, WIDTH, 20));
-	text_layer_set_background_color(&weather_layer->message_layer, GColorWhite);
+	text_layer_init(&weather_layer->message_layer, GRect(0, 100, WIDTH, 20));
+	text_layer_set_background_color(&weather_layer->message_layer, GColorBlack);
 	text_layer_set_text_alignment(&weather_layer->message_layer, GTextAlignmentCenter);
-	text_layer_set_text_color(&weather_layer->message_layer, GColorBlack);
-	text_layer_set_font(&weather_layer->message_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_14)));
+	text_layer_set_text_color(&weather_layer->message_layer, GColorWhite);
+	text_layer_set_font(&weather_layer->message_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_10)));
 	layer_add_child(&weather_layer->layer, &weather_layer->message_layer.layer);
 	text_layer_set_text(&weather_layer->message_layer, "Loading");
 	

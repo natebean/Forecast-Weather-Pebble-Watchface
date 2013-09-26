@@ -6,6 +6,8 @@ typedef struct {
 	BmpContainer icon_layer;
 	TextLayer temp_layer;
 	TextLayer temp_layer_background;
+  TextLayer min_max_temp_layer;
+  TextLayer min_max_time_layer;
 	TextLayer message_layer;
 	bool has_weather_icon;
 	char temp_str[5];
