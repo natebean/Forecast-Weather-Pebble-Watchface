@@ -18,26 +18,27 @@ static uint8_t WEATHER_ICONS[] = {
 	RESOURCE_ID_ICON_ERROR,
 };
 
+#define WIDTH 59
+#define HEIGHT 80
+
 void weather_layer_init(WeatherLayer* weather_layer, GPoint pos) {
 	//layer_init(&weather_layer->layer, GRect(pos.x, pos.y, 144, 80));
-	layer_init(&weather_layer->layer, GRect(pos.x, pos.y, 64, 80));
+	layer_init(&weather_layer->layer, GRect(pos.x, pos.y, WIDTH, HEIGHT));
 	
 	// Add background layer
-	text_layer_init(&weather_layer->temp_layer_background, GRect(0, 0, 64, 104));
+	text_layer_init(&weather_layer->temp_layer_background, GRect(0, 0, WIDTH, 104));
 	text_layer_set_background_color(&weather_layer->temp_layer_background, GColorWhite);
 	layer_add_child(&weather_layer->layer, &weather_layer->temp_layer_background.layer);
 	
     // Add temperature layer
-	//text_layer_init(&weather_layer->temp_layer, GRect(70, 19, 72, 80));
-	text_layer_init(&weather_layer->temp_layer, GRect(0, 40, 64, 20));
+	text_layer_init(&weather_layer->temp_layer, GRect(0, 40, WIDTH, 20));
 	text_layer_set_background_color(&weather_layer->temp_layer, GColorClear);
 	text_layer_set_text_alignment(&weather_layer->temp_layer, GTextAlignmentCenter);
-	/*text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_40)));*/
 	text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));
 	layer_add_child(&weather_layer->layer, &weather_layer->temp_layer.layer);
 	
     // Add message layer
-	text_layer_init(&weather_layer->message_layer, GRect(0, 62, 64, 20));
+	text_layer_init(&weather_layer->message_layer, GRect(0, 62, WIDTH, 20));
 	text_layer_set_background_color(&weather_layer->message_layer, GColorWhite);
 	text_layer_set_text_alignment(&weather_layer->message_layer, GTextAlignmentCenter);
 	text_layer_set_text_color(&weather_layer->message_layer, GColorBlack);
@@ -61,7 +62,7 @@ void weather_layer_set_icon(WeatherLayer* weather_layer, WeatherIcon icon) {
   // Add weather icon
   bmp_init_container(WEATHER_ICONS[icon], &weather_layer->icon_layer);
   layer_add_child(&weather_layer->layer, &weather_layer->icon_layer.layer.layer);
-  layer_set_frame(&weather_layer->icon_layer.layer.layer, GRect(0,-10, 64, 50));
+  layer_set_frame(&weather_layer->icon_layer.layer.layer, GRect(0,-10, WIDTH, 50));
   weather_layer->has_weather_icon = true;
 }
 

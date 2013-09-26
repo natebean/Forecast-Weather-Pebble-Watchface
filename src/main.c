@@ -25,8 +25,12 @@ PBL_APP_INFO(MY_UUID,
 #define WEATHER_KEY_UNIT_SYSTEM 3
 	
 // Received variables
-#define WEATHER_KEY_ICON 2
 #define WEATHER_KEY_TEMPERATURE 1
+#define WEATHER_KEY_ICON 2
+#define WEATHER_KEY_TODAY_MIN 3
+#define WEATHER_KEY_TODAY_MAX 4
+#define WEATHER_KEY_SUNRISE 5
+#define WEATHER_KEY_SUNSET 6
 	
 #define WEATHER_HTTP_COOKIE 1949327671
 #define TIME_HTTP_COOKIE 1131038282
@@ -34,10 +38,15 @@ PBL_APP_INFO(MY_UUID,
 Window window;          /* main window */
 TextLayer date_layer;   /* layer for the date */
 TextLayer time_layer;   /* layer for the time */
+TextLayer today_min_temp_layer;   /* layer for the time */
+TextLayer today_max_temp_layer;   /* layer for the time */
+TextLayer sunrise_layer;   /* layer for the time */
+TextLayer sunset_layer;   /* layer for the time */
 
 GFont font_date;        /* font for date */
 GFont font_hour;        /* font for hour */
 GFont font_minute;      /* font for minute */
+GFont font_small;      /* font for minute */
 
 static int initial_minute;
 
@@ -48,6 +57,10 @@ static bool initial_request = true;
 static bool has_temperature = false;
 
 WeatherLayer weather_layer;
+
+//Today Temp info
+char today_temp_min[5];
+char today_temp_max[5];
 
 void request_weather();
 void current_time_text(char * output_string, int string_size);
@@ -79,14 +92,14 @@ void failed(int32_t cookie, int http_status, void* context) {
 void success(int32_t cookie, int http_status, DictionaryIterator* received, void* context) {
 	if(cookie != WEATHER_HTTP_COOKIE) return;
 	Tuple* icon_tuple = dict_find(received, WEATHER_KEY_ICON);
-	if(icon_tuple) {
-		int icon = icon_tuple->value->int8;
-		if(icon >= 0 && icon < 10) {
-			weather_layer_set_icon(&weather_layer, icon);
-		} else {
-			weather_layer_set_icon(&weather_layer, WEATHER_ICON_NO_WEATHER);
-		}
-	}
+  if(icon_tuple) {
+    int icon = icon_tuple->value->int8;
+    if(icon >= 0 && icon < 10) {
+      weather_layer_set_icon(&weather_layer, icon);
+    } else {
+      weather_layer_set_icon(&weather_layer, WEATHER_ICON_NO_WEATHER);
+    }
+  }
 	Tuple* temperature_tuple = dict_find(received, WEATHER_KEY_TEMPERATURE);
 	if(temperature_tuple) {
 		weather_layer_set_temperature(&weather_layer, temperature_tuple->value->int16);
@@ -96,7 +109,26 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
 		current_time_text(time_string,sizeof(time_string));
 		text_layer_set_text(&weather_layer.message_layer, time_string);
 	}
-	
+	Tuple* today_min_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MIN);
+	if(today_min_temp_tuple) {
+    memcpy(today_temp_min, itoa(today_min_temp_tuple->value->int16), 4);
+    text_layer_set_text(&today_min_temp_layer, today_temp_min);
+	}
+  Tuple* today_max_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MAX);
+  if(today_max_temp_tuple) {
+    memcpy(today_temp_max, itoa(today_max_temp_tuple->value->int16), 4);
+    text_layer_set_text(&today_max_temp_layer, today_temp_max);
+  }
+  Tuple* sunrise_tuple = dict_find(received, WEATHER_KEY_SUNRISE);
+  if(sunrise_tuple) {
+    text_layer_set_text(&sunrise_layer, sunrise_tuple->value->cstring);
+    /*text_layer_set_text(&sunrise_layer, "Sunrise");*/
+  }
+  Tuple* sunset_tuple = dict_find(received, WEATHER_KEY_SUNSET);
+  if(sunset_tuple) {
+    text_layer_set_text(&sunset_layer, sunset_tuple->value->cstring);
+    /*text_layer_set_text(&sunset_layer, "Sunset");*/
+  }
 	
 	link_monitor_handle_success();
 }
@@ -170,6 +202,7 @@ void handle_init(AppContextRef ctx)
     ResHandle res_d;
     ResHandle res_h;
     ResHandle res_m;
+    ResHandle res_small;
 
     window_init(&window, "Bean Weather");
     window_stack_push(&window, true /* Animated */);
@@ -178,12 +211,13 @@ void handle_init(AppContextRef ctx)
     resource_init_current_app(&APP_RESOURCES);
 
     res_d = resource_get_handle(RESOURCE_ID_FUTURA_18);
-    /*res_h = resource_get_handle(RESOURCE_ID_FUTURA_40);*/
     res_h = resource_get_handle(RESOURCE_ID_FUTURA_35);
+    res_small = resource_get_handle(RESOURCE_ID_FUTURA_14);
 
     font_date = fonts_load_custom_font(res_d);
     font_hour = fonts_load_custom_font(res_h);
     font_minute = fonts_load_custom_font(res_h);
+    font_small = fonts_load_custom_font(res_small);
 
 	//Add simple time layer
     /*text_layer_init(&time_layer, window.layer.frame);*/
@@ -192,7 +226,6 @@ void handle_init(AppContextRef ctx)
     text_layer_set_text_alignment(&time_layer, GTextAlignmentCenter);
     text_layer_set_background_color(&time_layer, GColorClear);
     text_layer_set_font(&time_layer, font_hour);
-    /*layer_set_frame(&time_layer.layer, TIME_FRAME);*/
     layer_add_child(&window.layer, &time_layer.layer);
 
 	//Add date layer
@@ -202,13 +235,43 @@ void handle_init(AppContextRef ctx)
     text_layer_set_background_color(&date_layer, GColorClear);
     text_layer_set_font(&date_layer, font_date);
     text_layer_set_text_alignment(&date_layer, GTextAlignmentCenter);
-    /*layer_set_frame(&date_layer.layer, GRect(0,20,75,20);*/
     layer_add_child(&window.layer, &date_layer.layer);
 
+	//Add today_temp_min layer
+    text_layer_init(&today_min_temp_layer, GRect(0,55,80,20));
+    text_layer_set_text_color(&today_min_temp_layer, GColorWhite);
+    text_layer_set_background_color(&today_min_temp_layer, GColorClear);
+    text_layer_set_font(&today_min_temp_layer, font_small);
+    text_layer_set_text_alignment(&today_min_temp_layer, GTextAlignmentCenter);
+    layer_add_child(&window.layer, &today_min_temp_layer.layer);
+
+	//Add today_temp_max layer
+    text_layer_init(&today_max_temp_layer, GRect(0,75,80,20));
+    text_layer_set_text_color(&today_max_temp_layer, GColorWhite);
+    text_layer_set_background_color(&today_max_temp_layer, GColorClear);
+    text_layer_set_font(&today_max_temp_layer, font_small);
+    text_layer_set_text_alignment(&today_max_temp_layer, GTextAlignmentCenter);
+    layer_add_child(&window.layer, &today_max_temp_layer.layer);
+
+	//Add sunrise layer
+    text_layer_init(&sunrise_layer, GRect(0,95,80,20));
+    text_layer_set_text_color(&sunrise_layer, GColorWhite);
+    text_layer_set_background_color(&sunrise_layer, GColorClear);
+    text_layer_set_font(&sunrise_layer, font_small);
+    text_layer_set_text_alignment(&sunrise_layer, GTextAlignmentCenter);
+    layer_add_child(&window.layer, &sunrise_layer.layer);
+
+	//Add sunset layer
+    text_layer_init(&sunset_layer, GRect(0,115,80,20));
+    text_layer_set_text_color(&sunset_layer, GColorWhite);
+    text_layer_set_background_color(&sunset_layer, GColorClear);
+    text_layer_set_font(&sunset_layer, font_small);
+    text_layer_set_text_alignment(&sunset_layer, GTextAlignmentCenter);
+    layer_add_child(&window.layer, &sunset_layer.layer);
+
 	// Add weather layer
-	/*weather_layer_init(&weather_layer, GPoint(0, 90));*/
-	weather_layer_init(&weather_layer, GPoint(80, 0));
-	layer_add_child(&window.layer, &weather_layer.layer);
+    weather_layer_init(&weather_layer, GPoint(85, 0));
+    layer_add_child(&window.layer, &weather_layer.layer);
 	
 	http_register_callbacks((HTTPCallbacks){
 		.failure=failed,
@@ -254,6 +317,7 @@ void handle_deinit(AppContextRef ctx)
     fonts_unload_custom_font(font_date);
     fonts_unload_custom_font(font_hour);
     fonts_unload_custom_font(font_minute);
+    fonts_unload_custom_font(font_small);
 	
 	weather_layer_deinit(&weather_layer);
 }
