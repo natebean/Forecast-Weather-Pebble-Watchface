@@ -5,7 +5,7 @@ typedef struct {
 	Layer layer;
 	BmpContainer icon_layer;
 	TextLayer temp_layer;
-	TextLayer temp_layer_background;
+	//TextLayer temp_layer_background;
   TextLayer sunrise_layer;
   TextLayer sunset_layer;
 	bool has_weather_icon;
@@ -26,6 +26,20 @@ typedef enum {
 	WEATHER_ICON_NO_WEATHER,
 	WEATHER_ICON_COUNT
 } WeatherIcon;
+
+static uint8_t WEATHER_ICONS[] = {
+  RESOURCE_ID_ICON_CLEAR_DAY,
+  RESOURCE_ID_ICON_CLEAR_NIGHT,
+  RESOURCE_ID_ICON_RAIN,
+  RESOURCE_ID_ICON_SNOW,
+  RESOURCE_ID_ICON_SLEET,
+  RESOURCE_ID_ICON_WIND,
+  RESOURCE_ID_ICON_FOG,
+  RESOURCE_ID_ICON_CLOUDY,
+  RESOURCE_ID_ICON_PARTLY_CLOUDY_DAY,
+  RESOURCE_ID_ICON_PARTLY_CLOUDY_NIGHT,
+  RESOURCE_ID_ICON_ERROR,
+};
 
 void weather_layer_init(WeatherLayer* weather_layer, GPoint pos);
 void weather_layer_deinit(WeatherLayer* weather_layer);

@@ -18,8 +18,6 @@ PBL_APP_INFO(MY_UUID,
              APP_INFO_WATCH_FACE);
 
 #define WIDTH 75
-/*#define UP_ARROW "\u2191"*/
-/*#define DOWN_ARROW "\u2193"*/
 static const int mod_minute_weather = 15;
 static const int mod_minute_check = 6;
 
@@ -35,6 +33,7 @@ static const int mod_minute_check = 6;
 #define WEATHER_KEY_TODAY_MAX 4
 #define WEATHER_KEY_SUNRISE 5
 #define WEATHER_KEY_SUNSET 6
+#define WEATHER_KEY_TODAY_ICON 7
 	
 #define WEATHER_HTTP_COOKIE 1949327671
 #define TIME_HTTP_COOKIE 1131038282
@@ -61,14 +60,18 @@ static bool initial_request = true;
 static bool has_temperature = false;
 
 WeatherLayer weather_layer;
+ForecastLayer today_forecast_layer;
 
 //Today Temp info
 char today_temp_min[5];
 char today_temp_max[5];
+char today_min_max_string[12] = "";
+char today_name[4] = "BBB";
 
 //Sunrise/set info
 char sunrise_string[12] = "sunrise";
 char sunset_string[12] = "sunset";
+
 
 void request_weather();
 void current_time_text(char * output_string, int string_size);
@@ -116,23 +119,6 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
 		current_time_text(time_string,sizeof(time_string));
 		text_layer_set_text(&message_layer, time_string);
 	}
-	Tuple* today_min_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MIN);
-	if(today_min_temp_tuple) {
-    memcpy(today_temp_min, itoa(today_min_temp_tuple->value->int16), 4);
-	}
-  Tuple* today_max_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MAX);
-  if(today_max_temp_tuple) {
-    memcpy(today_temp_max, itoa(today_max_temp_tuple->value->int16), 4);
-  }
-  if(today_min_temp_tuple && today_max_temp_tuple){
-    static char min_max_string[12] = "";
-    strcat(&min_max_string[0],&today_temp_min[0]);
-    strcat(&min_max_string[0],"/");
-    strcat(&min_max_string[0],&today_temp_max[0]);
-    /*text_layer_set_text(&weather_layer.min_max_temp_layer, min_max_string);*/
-    //TODO:  Clean up which layer does what
-    text_layer_set_text(&min_max_temp_layer, min_max_string);
-  }
   Tuple* sunrise_tuple = dict_find(received, WEATHER_KEY_SUNRISE);
   Tuple* sunset_tuple = dict_find(received, WEATHER_KEY_SUNSET);
   if(sunrise_tuple) {
@@ -144,6 +130,30 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     strcpy(sunset_string, "set ");
     strcat(&sunset_string[0],sunset_tuple->value->cstring);
     text_layer_set_text(&weather_layer.sunset_layer, sunset_string);
+  }
+	Tuple* today_icon_tuple = dict_find(received, WEATHER_KEY_TODAY_ICON);
+  if(today_icon_tuple) {
+    int icon = today_icon_tuple->value->int8;
+    if(icon >= 0 && icon < 10) {
+      forecast_layer_set_icon(&today_forecast_layer, icon);
+    } else {
+      forecast_layer_set_icon(&today_forecast_layer, WEATHER_ICON_NO_WEATHER);
+    }
+  }
+	Tuple* today_min_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MIN);
+	if(today_min_temp_tuple) {
+    memcpy(today_temp_min, itoa(today_min_temp_tuple->value->int16), 4);
+	}
+  Tuple* today_max_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MAX);
+  if(today_max_temp_tuple) {
+    memcpy(today_temp_max, itoa(today_max_temp_tuple->value->int16), 4);
+  }
+  if(today_min_temp_tuple && today_max_temp_tuple){
+    strcpy(today_min_max_string,"");
+    strcat(&today_min_max_string[0],&today_temp_min[0]);
+    strcat(&today_min_max_string[0],"/");
+    strcat(&today_min_max_string[0],&today_temp_max[0]);
+    text_layer_set_text(&today_forecast_layer.temp_layer, today_min_max_string);
   }
 
 	link_monitor_handle_success();
@@ -183,6 +193,12 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
                            "%a %d",
                            t->tick_time);
 
+			/*string_format_time(today_name,*/
+                           /*sizeof(today_name),*/
+                           /*"%a",*/
+                           /*t->tick_time);*/
+      /*text_layer_set_text(&today_forecast_layer.day_layer,today_name);*/
+
 		if (date_text[4] == '0') /* is day of month < 10? */
 		{
 		    /* This is a hack to get rid of the leading zero of the
@@ -198,13 +214,13 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
 	
 	if(initial_request || !has_temperature || (t->tick_time->tm_min % mod_minute_weather) == initial_minute)
 	{
-		// Every 30 minutes, request updated weather
+		// Every mod_minute_weather minutes, request updated weather
 		http_location_request();
 		initial_request = false;
 	}
 	else if (t->tick_time->tm_min % mod_minute_check == initial_minute)
 	{
-		// Ping the phone every 10 minutes
+		// Ping the phone every mod_minute_check minutes
 		link_monitor_ping();
 	}
 }
@@ -270,6 +286,10 @@ void handle_init(AppContextRef ctx)
 	// Add weather layer
     weather_layer_init(&weather_layer, GPoint(70, 0));
     layer_add_child(&window.layer, &weather_layer.layer);
+
+	// Add forecast layer
+    forecast_layer_init(&today_forecast_layer, GPoint(0, 85));
+    layer_add_child(&window.layer, &today_forecast_layer.layer);
 	
 	http_register_callbacks((HTTPCallbacks){
 		.failure=failed,
@@ -291,17 +311,15 @@ void handle_init(AppContextRef ctx)
 void current_time_text(char * output_string, int string_size){
     PblTm tm;
     PebbleTickEvent t;
-	get_time(&tm);
+	  get_time(&tm);
     t.tick_time = &tm;
 	
     string_format_time(output_string, string_size, "%I:%M", t.tick_time);
-	// "09:45"
 	
 	if (output_string[0] == '0')
 	{
 		// This is a hack to get rid of the leading zero of the hour.
 		memmove(&output_string[0], &output_string[1], string_size - 1);
-		//strncpy(&output_string[0], &output_string[1], sizeof(output_string) - 2);
 	}
 	
 }
@@ -317,7 +335,7 @@ void handle_deinit(AppContextRef ctx)
     fonts_unload_custom_font(font_small);
     fonts_unload_custom_font(font_very_small);
 	
-	weather_layer_deinit(&weather_layer);
+	  weather_layer_deinit(&weather_layer);
 }
 
 

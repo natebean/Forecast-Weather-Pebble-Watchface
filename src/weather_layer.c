@@ -4,19 +4,6 @@
 #include "util.h"
 #include "weather_layer.h"
 
-static uint8_t WEATHER_ICONS[] = {
-	RESOURCE_ID_ICON_CLEAR_DAY,
-	RESOURCE_ID_ICON_CLEAR_NIGHT,
-	RESOURCE_ID_ICON_RAIN,
-	RESOURCE_ID_ICON_SNOW,
-	RESOURCE_ID_ICON_SLEET,
-	RESOURCE_ID_ICON_WIND,
-	RESOURCE_ID_ICON_FOG,
-	RESOURCE_ID_ICON_CLOUDY,
-	RESOURCE_ID_ICON_PARTLY_CLOUDY_DAY,
-	RESOURCE_ID_ICON_PARTLY_CLOUDY_NIGHT,
-	RESOURCE_ID_ICON_ERROR,
-};
 
 #define WIDTH 75
 #define HEIGHT 55
@@ -26,9 +13,9 @@ void weather_layer_init(WeatherLayer* weather_layer, GPoint pos) {
 	layer_init(&weather_layer->layer, GRect(pos.x, pos.y, WIDTH, HEIGHT));
 	
 	// Add background layer
-	text_layer_init(&weather_layer->temp_layer_background, GRect(0, 0, WIDTH, HEIGHT));
-	text_layer_set_background_color(&weather_layer->temp_layer_background, GColorBlack);
-	layer_add_child(&weather_layer->layer, &weather_layer->temp_layer_background.layer);
+	/*text_layer_init(&weather_layer->temp_layer_background, GRect(0, 0, WIDTH, HEIGHT));*/
+	/*text_layer_set_background_color(&weather_layer->temp_layer_background, GColorBlack);*/
+	/*layer_add_child(&weather_layer->layer, &weather_layer->temp_layer_background.layer);*/
 	
     // Add temperature layer
 	text_layer_init(&weather_layer->temp_layer, GRect(WIDTH/2, 5, WIDTH/2, 20));
