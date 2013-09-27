@@ -8,6 +8,7 @@
 #include "forecast_layer.h"
 #include "link_monitor.h"
 #include "config.h"
+#include "receive_keys.h"
 
 #define MY_UUID { 0x91, 0x41, 0xB6, 0x28, 0xBC, 0x89, 0x49, 0x8E, 0xB1, 0x47, 0x04, 0x9F, 0x49, 0xC0, 0x99, 0xAD }
 
@@ -26,14 +27,6 @@ static const int mod_minute_check = 6;
 #define WEATHER_KEY_LONGITUDE 2
 #define WEATHER_KEY_UNIT_SYSTEM 3
 	
-// Received variables
-#define WEATHER_KEY_TEMPERATURE 1
-#define WEATHER_KEY_ICON 2
-#define WEATHER_KEY_TODAY_MIN 3
-#define WEATHER_KEY_TODAY_MAX 4
-#define WEATHER_KEY_SUNRISE 5
-#define WEATHER_KEY_SUNSET 6
-#define WEATHER_KEY_TODAY_ICON 7
 	
 #define WEATHER_HTTP_COOKIE 1949327671
 #define TIME_HTTP_COOKIE 1131038282
@@ -59,18 +52,19 @@ static bool located = false;
 static bool initial_request = true;
 static bool has_temperature = false;
 
-WeatherLayer weather_layer;
-ForecastLayer today_forecast_layer;
-
-//Today Temp info
-char today_temp_min[5];
-char today_temp_max[5];
-char today_min_max_string[12] = "";
-/*char today_name[4] = "BBB";*/
-
 //Sunrise/set info
 char sunrise_string[12] = "sunrise";
 char sunset_string[12] = "sunset";
+
+WeatherLayer weather_layer;
+ForecastLayer today_forecast_layer;
+ForecastLayer tom_forecast_layer;
+
+//Today Temp info
+/*char today_temp_min[5];*/
+/*char today_temp_max[5];*/
+/*char today_min_max_string[12] = "";*/
+
 
 
 void request_weather();
@@ -131,30 +125,11 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     strcat(&sunset_string[0],sunset_tuple->value->cstring);
     text_layer_set_text(&weather_layer.sunset_layer, sunset_string);
   }
-	Tuple* today_icon_tuple = dict_find(received, WEATHER_KEY_TODAY_ICON);
-  if(today_icon_tuple) {
-    int icon = today_icon_tuple->value->int8;
-    if(icon >= 0 && icon < 10) {
-      forecast_layer_set_icon(&today_forecast_layer, icon);
-    } else {
-      forecast_layer_set_icon(&today_forecast_layer, WEATHER_ICON_NO_WEATHER);
-    }
-  }
-	Tuple* today_min_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MIN);
-	if(today_min_temp_tuple) {
-    memcpy(today_temp_min, itoa(today_min_temp_tuple->value->int16), 4);
-	}
-  Tuple* today_max_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MAX);
-  if(today_max_temp_tuple) {
-    memcpy(today_temp_max, itoa(today_max_temp_tuple->value->int16), 4);
-  }
-  if(today_min_temp_tuple && today_max_temp_tuple){
-    strcpy(today_min_max_string,"");
-    strcat(&today_min_max_string[0],&today_temp_min[0]);
-    strcat(&today_min_max_string[0],"/");
-    strcat(&today_min_max_string[0],&today_temp_max[0]);
-    text_layer_set_text(&today_forecast_layer.temp_layer, today_min_max_string);
-  }
+  forecast_layer_update(&today_forecast_layer,received, WEATHER_KEY_TODAY_ICON,
+      WEATHER_KEY_TODAY_MIN, WEATHER_KEY_TODAY_MAX);
+
+  forecast_layer_update(&tom_forecast_layer,received, WEATHER_KEY_TOM_ICON,
+      WEATHER_KEY_TOM_MIN, WEATHER_KEY_TOM_MAX);
 
 	link_monitor_handle_success();
 }
@@ -291,6 +266,10 @@ void handle_init(AppContextRef ctx)
     forecast_layer_init(&today_forecast_layer, GPoint(0, 85));
     layer_add_child(&window.layer, &today_forecast_layer.layer);
 	
+	// Add forecast layer
+    forecast_layer_init(&tom_forecast_layer, GPoint(0, 115));
+    layer_add_child(&window.layer, &tom_forecast_layer.layer);
+
 	http_register_callbacks((HTTPCallbacks){
 		.failure=failed,
 		.success=success,
