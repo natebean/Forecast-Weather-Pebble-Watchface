@@ -8,7 +8,6 @@ typedef struct {
 	TextLayer temp_layer_background;
   TextLayer sunrise_layer;
   TextLayer sunset_layer;
-	//TextLayer message_layer;
 	bool has_weather_icon;
 	char temp_str[5];
 } WeatherLayer;

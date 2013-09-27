@@ -5,6 +5,7 @@
 #include "http.h"
 #include "util.h"
 #include "weather_layer.h"
+#include "forecast_layer.h"
 #include "link_monitor.h"
 #include "config.h"
 
