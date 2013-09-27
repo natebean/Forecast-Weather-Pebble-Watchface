@@ -66,7 +66,7 @@ ForecastLayer today_forecast_layer;
 char today_temp_min[5];
 char today_temp_max[5];
 char today_min_max_string[12] = "";
-char today_name[4] = "BBB";
+/*char today_name[4] = "BBB";*/
 
 //Sunrise/set info
 char sunrise_string[12] = "sunrise";
@@ -193,11 +193,11 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
                            "%a %d",
                            t->tick_time);
 
-			/*string_format_time(today_name,*/
-                           /*sizeof(today_name),*/
-                           /*"%a",*/
-                           /*t->tick_time);*/
-      /*text_layer_set_text(&today_forecast_layer.day_layer,today_name);*/
+      string_format_time(today_forecast_layer.day_name,
+                           sizeof(today_forecast_layer.day_name),
+                           "%a",
+                           t->tick_time);
+      text_layer_set_text(&today_forecast_layer.day_layer,today_forecast_layer.day_name);
 
 		if (date_text[4] == '0') /* is day of month < 10? */
 		{

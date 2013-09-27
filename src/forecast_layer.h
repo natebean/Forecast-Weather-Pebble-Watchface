@@ -11,6 +11,7 @@ typedef struct {
 	//TextLayer temp_layer_background;
 	bool has_weather_icon;
 	char temp_str[8];
+  char day_name[4];
 } ForecastLayer;
 
 

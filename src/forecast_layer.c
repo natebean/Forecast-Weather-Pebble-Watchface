@@ -13,7 +13,7 @@ void forecast_layer_init(ForecastLayer* forecast_layer, GPoint pos) {
 	layer_init(&forecast_layer->layer, GRect(pos.x, pos.y, WIDTH, HEIGHT));
 	
   // Add day layer
-	text_layer_init(&forecast_layer->day_layer, GRect(0, 0, 44, 15));
+	text_layer_init(&forecast_layer->day_layer, GRect(0, 0, 44, 20));
 	text_layer_set_background_color(&forecast_layer->day_layer, GColorClear);
 	text_layer_set_text_alignment(&forecast_layer->day_layer, GTextAlignmentCenter);
 	text_layer_set_text_color(&forecast_layer->day_layer, GColorWhite);
@@ -22,7 +22,7 @@ void forecast_layer_init(ForecastLayer* forecast_layer, GPoint pos) {
 	layer_add_child(&forecast_layer->layer, &forecast_layer->day_layer.layer);
 
     // Add temperature layer
-	text_layer_init(&forecast_layer->temp_layer, GRect(80, 2, 70, 20));
+	text_layer_init(&forecast_layer->temp_layer, GRect(70, 2, 70, 20));
 	text_layer_set_background_color(&forecast_layer->temp_layer, GColorClear);
 	text_layer_set_text_alignment(&forecast_layer->temp_layer, GTextAlignmentCenter);
 	text_layer_set_text_color(&forecast_layer->temp_layer, GColorWhite);
@@ -47,7 +47,7 @@ void forecast_layer_set_icon(ForecastLayer* forecast_layer, WeatherIcon icon) {
   // Add weather icon
   bmp_init_container(WEATHER_ICONS[icon], &forecast_layer->icon_layer);
   layer_add_child(&forecast_layer->layer, &forecast_layer->icon_layer.layer.layer);
-  layer_set_frame(&forecast_layer->icon_layer.layer.layer, GRect((WIDTH/2)-25/2-2,0, 25, 25));
+  layer_set_frame(&forecast_layer->icon_layer.layer.layer, GRect(50,0, 25, 25));
   forecast_layer->has_weather_icon = true;
 }
 
