@@ -16,8 +16,11 @@ PBL_APP_INFO(MY_UUID,
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
 
-/*#define TIME_FRAME      (GRect(0, 2, 144, 168-6))*/
-/*#define DATE_FRAME      (GRect(1, 65, 144, 168-62))*/
+#define WIDTH 75
+/*#define UP_ARROW "\u2191"*/
+/*#define DOWN_ARROW "\u2193"*/
+static const int mod_minute_weather = 15;
+static const int mod_minute_check = 6;
 
 // POST variables
 #define WEATHER_KEY_LATITUDE 1
@@ -38,9 +41,9 @@ PBL_APP_INFO(MY_UUID,
 Window window;          /* main window */
 TextLayer date_layer;   /* layer for the date */
 TextLayer time_layer;   /* layer for the time */
-TextLayer sunrise_set_layer;   /* layer for the time */
-/*TextLayer sunrise_layer;   [> layer for the time <]*/
-/*TextLayer sunset_layer;   [> layer for the time <]*/
+TextLayer min_max_temp_layer;   //layer for the time
+TextLayer message_background_layer;   //layer for the time
+TextLayer message_layer;   //layer for the time
 
 GFont font_date;        /* font for date */
 GFont font_hour;        /* font for hour */
@@ -62,6 +65,10 @@ WeatherLayer weather_layer;
 char today_temp_min[5];
 char today_temp_max[5];
 
+//Sunrise/set info
+char sunrise_string[12] = "sunrise";
+char sunset_string[12] = "sunset";
+
 void request_weather();
 void current_time_text(char * output_string, int string_size);
 
@@ -72,16 +79,16 @@ void failed(int32_t cookie, int http_status, void* context) {
 		  current_time_text(time_string, sizeof(time_string));
 		  static char output_string[10] = "R 99:99";
 		  memmove(&output_string[2], &time_string,sizeof(time_string)-1);
-		  text_layer_set_text(&weather_layer.message_layer, output_string);
+		  text_layer_set_text(&message_layer, output_string);
 
 		  located = false;
 		  request_weather();
 		}else if (http_status==1008){
-	      text_layer_set_text(&weather_layer.message_layer, "Disconnect");
+	      text_layer_set_text(&message_layer, "Disconnect");
 		  located = false;
 		  link_monitor_handle_failure(http_status);
 		}else {
-	      text_layer_set_text(&weather_layer.message_layer, itoa(http_status));
+	      text_layer_set_text(&message_layer, itoa(http_status));
 		  //Re-request the location and subsequently weather on next minute tick
 		  located = false;
 		  link_monitor_handle_failure(http_status);
@@ -106,7 +113,7 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
 		has_temperature = true;
 		static char time_string[] = "99:99";	
 		current_time_text(time_string,sizeof(time_string));
-		text_layer_set_text(&weather_layer.message_layer, time_string);
+		text_layer_set_text(&message_layer, time_string);
 	}
 	Tuple* today_min_temp_tuple = dict_find(received, WEATHER_KEY_TODAY_MIN);
 	if(today_min_temp_tuple) {
@@ -121,16 +128,21 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     strcat(&min_max_string[0],&today_temp_min[0]);
     strcat(&min_max_string[0],"/");
     strcat(&min_max_string[0],&today_temp_max[0]);
-    text_layer_set_text(&weather_layer.min_max_temp_layer, min_max_string);
+    /*text_layer_set_text(&weather_layer.min_max_temp_layer, min_max_string);*/
+    //TODO:  Clean up which layer does what
+    text_layer_set_text(&min_max_temp_layer, min_max_string);
   }
   Tuple* sunrise_tuple = dict_find(received, WEATHER_KEY_SUNRISE);
   Tuple* sunset_tuple = dict_find(received, WEATHER_KEY_SUNSET);
-  if(sunrise_tuple && sunset_tuple) {
-    static char sunrise_set_string[14] = "";
-    strcat(&sunrise_set_string[0],sunrise_tuple->value->cstring);
-    strcat(&sunrise_set_string[0],"/");
-    strcat(&sunrise_set_string[0],sunset_tuple->value->cstring);
-    text_layer_set_text(&sunrise_set_layer, sunrise_set_string);
+  if(sunrise_tuple) {
+    strcpy(sunrise_string, "rise ");
+    strcat(&sunrise_string[0],sunrise_tuple->value->cstring);
+    text_layer_set_text(&weather_layer.sunrise_layer, sunrise_string);
+  }
+  if(sunset_tuple) {
+    strcpy(sunset_string, "set ");
+    strcat(&sunset_string[0],sunset_tuple->value->cstring);
+    text_layer_set_text(&weather_layer.sunset_layer, sunset_string);
   }
 
 	link_monitor_handle_success();
@@ -183,13 +195,13 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
 	current_time_text(time_string,sizeof(time_string));
 	text_layer_set_text(&time_layer, time_string);
 	
-	if(initial_request || !has_temperature || (t->tick_time->tm_min % 30) == initial_minute)
+	if(initial_request || !has_temperature || (t->tick_time->tm_min % mod_minute_weather) == initial_minute)
 	{
 		// Every 30 minutes, request updated weather
 		http_location_request();
 		initial_request = false;
 	}
-	else if (t->tick_time->tm_min % 10 == initial_minute)
+	else if (t->tick_time->tm_min % mod_minute_check == initial_minute)
 	{
 		// Ping the phone every 10 minutes
 		link_monitor_ping();
@@ -226,32 +238,36 @@ void handle_init(AppContextRef ctx)
 
 	//Add simple time layer
     /*text_layer_init(&time_layer, window.layer.frame);*/
-    text_layer_init(&time_layer, GRect(0,0,75,30));
+    text_layer_init(&time_layer, GRect(0,0,WIDTH,30));
     text_layer_set_text_color(&time_layer, GColorWhite);
-    text_layer_set_text_alignment(&time_layer, GTextAlignmentCenter);
+    text_layer_set_text_alignment(&time_layer, GTextAlignmentLeft);
     text_layer_set_background_color(&time_layer, GColorClear);
     text_layer_set_font(&time_layer, font_hour);
     layer_add_child(&window.layer, &time_layer.layer);
 
 	//Add date layer
-    text_layer_init(&date_layer, GRect(0,30,75,20));
+    text_layer_init(&date_layer, GRect(0,30,WIDTH,20));
     text_layer_set_text_color(&date_layer, GColorWhite);
     text_layer_set_background_color(&date_layer, GColorClear);
     text_layer_set_font(&date_layer, font_date);
     text_layer_set_text_alignment(&date_layer, GTextAlignmentCenter);
     layer_add_child(&window.layer, &date_layer.layer);
 
+	//Add message background layer
+    text_layer_init(&message_background_layer, GRect(0,58,144,20));
+    text_layer_set_background_color(&message_background_layer, GColorWhite);
+    layer_add_child(&window.layer, &message_background_layer.layer);
 
-	//Add sunrise_set layer
-    text_layer_init(&sunrise_set_layer, GRect(0,55,90,20));
-    text_layer_set_text_color(&sunrise_set_layer, GColorWhite);
-    text_layer_set_background_color(&sunrise_set_layer, GColorClear);
-    text_layer_set_font(&sunrise_set_layer, font_very_small);
-    text_layer_set_text_alignment(&sunrise_set_layer, GTextAlignmentCenter);
-    layer_add_child(&window.layer, &sunrise_set_layer.layer);
+	//Add message layer
+    text_layer_init(&message_layer, GRect(0,2,144,20));
+    text_layer_set_text_color(&message_layer, GColorBlack);
+    text_layer_set_background_color(&message_layer, GColorClear);
+    text_layer_set_font(&message_layer, font_small);
+    text_layer_set_text_alignment(&message_layer, GTextAlignmentCenter);
+    layer_add_child(&message_background_layer.layer, &message_layer.layer);
 
 	// Add weather layer
-    weather_layer_init(&weather_layer, GPoint(75, 0));
+    weather_layer_init(&weather_layer, GPoint(70, 0));
     layer_add_child(&window.layer, &weather_layer.layer);
 	
 	http_register_callbacks((HTTPCallbacks){
@@ -266,11 +282,10 @@ void handle_init(AppContextRef ctx)
     t.tick_time = &tm;
     t.units_changed = SECOND_UNIT | MINUTE_UNIT | HOUR_UNIT | DAY_UNIT;
 	
-	initial_minute = (tm.tm_min % 30);
+	initial_minute = (tm.tm_min % mod_minute_weather);
 	
 	handle_minute_tick(ctx, &t);
 }
-							  
 
 void current_time_text(char * output_string, int string_size){
     PblTm tm;
