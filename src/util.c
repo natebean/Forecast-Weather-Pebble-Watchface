@@ -1,4 +1,8 @@
 #include "util.h"
+#include "receive_keys.h"
+#include "pebble_os.h"
+#include "pebble_app.h"
+
 #define INT_DIGITS 5		/* enough for 64 bit integer */
 
 char *itoa(int i)
@@ -34,3 +38,32 @@ int util_atoi(char *str)
                // return result.
       return res;
 }
+
+
+
+void incoming_params_parser(char terms[][TERM_LEN], char* incoming)
+{
+  int found[NUM_TERMS]= {0};
+  int i, j =0, k=0;
+  for (i = 0; i < (int)strlen(incoming); i ++){
+       if (incoming[i] == '|'){
+         found[j] = i;
+         j++;
+       }
+      }
+
+  for (k=0; k< NUM_TERMS; k++){
+    int temp = found[k];
+    int left_adj = 0, left_side = 0, right_side=0, len_adj =0;
+    if (temp > 0){
+       if(k!=0){
+         left_side = found[k-1];
+         left_adj = 1;
+         len_adj = 1;
+    }
+    right_side = found[k];
+    int len = (right_side - left_side);
+    memcpy(&terms[k],&incoming[left_side+left_adj],len-len_adj);
+    }
+  }
+}//func

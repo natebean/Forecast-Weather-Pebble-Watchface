@@ -13,4 +13,7 @@
 #define WEATHER_KEY_TOM_MAX 9
 #define WEATHER_KEY_TOM_ICON 10
 
+#define NUM_TERMS 10
+#define TERM_LEN 5
+
 #endif

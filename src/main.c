@@ -82,7 +82,7 @@ void failed(int32_t cookie, int http_status, void* context) {
 		  located = false;
 		  request_weather();
 		}else if (http_status==1008){
-	      text_layer_set_text(&message_layer, "Disconnect");
+	      text_layer_set_text(&message_layer, "Disconnected");
 		  located = false;
 		  link_monitor_handle_failure(http_status);
 		}else {

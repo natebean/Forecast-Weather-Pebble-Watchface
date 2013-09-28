@@ -22,7 +22,7 @@ void forecast_layer_init(ForecastLayer* forecast_layer, GPoint pos) {
 	layer_add_child(&forecast_layer->layer, &forecast_layer->day_layer.layer);
 
   // Add temperature layer
-	text_layer_init(&forecast_layer->temp_layer, GRect(70, 2, 70, 20));
+	text_layer_init(&forecast_layer->temp_layer, GRect(75, 2, 70, 20));
 	text_layer_set_background_color(&forecast_layer->temp_layer, GColorClear);
 	text_layer_set_text_alignment(&forecast_layer->temp_layer, GTextAlignmentCenter);
 	text_layer_set_text_color(&forecast_layer->temp_layer, GColorWhite);

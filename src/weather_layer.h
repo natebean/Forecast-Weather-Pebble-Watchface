@@ -5,7 +5,6 @@ typedef struct {
 	Layer layer;
 	BmpContainer icon_layer;
 	TextLayer temp_layer;
-	//TextLayer temp_layer_background;
   TextLayer sunrise_layer;
   TextLayer sunset_layer;
 	bool has_weather_icon;
