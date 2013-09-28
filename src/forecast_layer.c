@@ -18,7 +18,6 @@ void forecast_layer_init(ForecastLayer* forecast_layer, GPoint pos) {
 	text_layer_set_text_alignment(&forecast_layer->day_layer, GTextAlignmentCenter);
 	text_layer_set_text_color(&forecast_layer->day_layer, GColorWhite);
 	text_layer_set_font(&forecast_layer->day_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));
-  /*text_layer_set_text(&forecast_layer->day_layer, "AAA");*/
 	layer_add_child(&forecast_layer->layer, &forecast_layer->day_layer.layer);
 
   // Add temperature layer
@@ -56,27 +55,28 @@ void forecast_layer_deinit(ForecastLayer* forecast_layer) {
 		bmp_deinit_container(&forecast_layer->icon_layer);
 }
 
-void forecast_layer_update(ForecastLayer* forecast_layer, DictionaryIterator* received,
+void forecast_layer_update(ForecastLayer* forecast_layer,char data_packs[NUM_TERMS][TERM_LEN] ,
     int icon_key, int min_temp_key, int max_temp_key){
 
-	Tuple* icon_tuple = dict_find(received, icon_key);
-	Tuple* min_temp_tuple = dict_find(received, min_temp_key);
-  Tuple* max_temp_tuple = dict_find(received, max_temp_key);
-  if(icon_tuple) {
-    int icon = icon_tuple->value->int8;
+	/*Tuple* icon_tuple = dict_find(received, icon_key);*/
+	/*Tuple* min_temp_tuple = dict_find(received, min_temp_key);*/
+  /*Tuple* max_temp_tuple = dict_find(received, max_temp_key);*/
+  /*if(icon_tuple) {*/
+    int icon = atoi(data_packs[icon_key]);
     if(icon >= 0 && icon < 10) {
       forecast_layer_set_icon(forecast_layer, icon);
     } else {
       forecast_layer_set_icon(forecast_layer, WEATHER_ICON_NO_WEATHER);
     }
-  }
-	if(min_temp_tuple) {
-    memcpy(forecast_layer->temp_min, itoa(min_temp_tuple->value->int16), 4);
-	}
-  if(max_temp_tuple) {
-    memcpy(forecast_layer->temp_max, itoa(max_temp_tuple->value->int16), 4);
-  }
-  if(min_temp_tuple && max_temp_tuple){
+  /*}*/
+	/*if(min_temp_tuple) {*/
+    memcpy(forecast_layer->temp_min, data_packs[min_temp_key], 4);
+	/*}*/
+  /*if(max_temp_tuple) {*/
+    memcpy(forecast_layer->temp_max, data_packs[max_temp_key], 4);
+  /*}*/
+  /*if(min_temp_tuple && max_temp_tuple){*/
+  if(forecast_layer->temp_min && forecast_layer->temp_max){
     strcpy(forecast_layer->min_max_string,"");
     strcat(&(forecast_layer->min_max_string[0]),&(forecast_layer->temp_min[0]));
     strcat(&(forecast_layer->min_max_string[0]),"/");

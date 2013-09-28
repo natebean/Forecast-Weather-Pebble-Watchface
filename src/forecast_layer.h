@@ -20,6 +20,7 @@ typedef struct {
 void forecast_layer_init(ForecastLayer* forecast_layer, GPoint pos);
 void forecast_layer_deinit(ForecastLayer* forecast_layer);
 void forecast_layer_set_icon(ForecastLayer* forecast_layer, WeatherIcon icon);
-void forecast_layer_update(ForecastLayer* forecast_layer, DictionaryIterator* received, int icon_key, int min_temp_key, int max_temp_key);
+void forecast_layer_update(ForecastLayer* forecast_layer,char data_packs[NUM_TERMS][TERM_LEN],
+  int icon_key, int min_temp_key, int max_temp_key);
 
 #endif
