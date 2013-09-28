@@ -45,12 +45,17 @@ GFont font_small;      /* font for minute */
 GFont font_very_small;      /* font for minute */
 
 static int initial_minute;
+const char *day_of_week[] = {"Sun", "Mon","Tues","Wed", "Thu", "Fri", "Sat"};
+char today_char[2];
+int today_int;
+int tom_int;
 
 //Weather Stuff
 static int our_latitude, our_longitude;
 static bool located = false;
 static bool initial_request = true;
 static bool has_temperature = false;
+
 
 //Sunrise/set info
 char sunrise_string[12] = "sunrise";
@@ -59,13 +64,6 @@ char sunset_string[12] = "sunset";
 WeatherLayer weather_layer;
 ForecastLayer today_forecast_layer;
 ForecastLayer tom_forecast_layer;
-
-//Today Temp info
-/*char today_temp_min[5];*/
-/*char today_temp_max[5];*/
-/*char today_min_max_string[12] = "";*/
-
-
 
 void request_weather();
 void current_time_text(char * output_string, int string_size);
@@ -172,7 +170,19 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
                            sizeof(today_forecast_layer.day_name),
                            "%a",
                            t->tick_time);
+
+      string_format_time(today_char,
+                           sizeof(today_char),
+                           "%w",
+                           t->tick_time);
+
+      today_int = util_atoi(today_char);
+      /*today_int = 5;*/
+      tom_int = (today_int > 5) ? 0 : today_int + 1;
+
       text_layer_set_text(&today_forecast_layer.day_layer,today_forecast_layer.day_name);
+      strcpy(tom_forecast_layer.day_name, day_of_week[tom_int]);
+      text_layer_set_text(&tom_forecast_layer.day_layer,tom_forecast_layer.day_name);
 
 		if (date_text[4] == '0') /* is day of month < 10? */
 		{

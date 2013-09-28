@@ -12,12 +12,7 @@ void weather_layer_init(WeatherLayer* weather_layer, GPoint pos) {
 	//layer_init(&weather_layer->layer, GRect(pos.x, pos.y, 144, 80));
 	layer_init(&weather_layer->layer, GRect(pos.x, pos.y, WIDTH, HEIGHT));
 	
-	// Add background layer
-	/*text_layer_init(&weather_layer->temp_layer_background, GRect(0, 0, WIDTH, HEIGHT));*/
-	/*text_layer_set_background_color(&weather_layer->temp_layer_background, GColorBlack);*/
-	/*layer_add_child(&weather_layer->layer, &weather_layer->temp_layer_background.layer);*/
-	
-    // Add temperature layer
+  // Add temperature layer
 	text_layer_init(&weather_layer->temp_layer, GRect(WIDTH/2, 5, WIDTH/2, 20));
 	text_layer_set_background_color(&weather_layer->temp_layer, GColorClear);
 	text_layer_set_text_alignment(&weather_layer->temp_layer, GTextAlignmentRight);
@@ -26,7 +21,7 @@ void weather_layer_init(WeatherLayer* weather_layer, GPoint pos) {
   text_layer_set_text(&weather_layer->temp_layer, "TBD");
 	layer_add_child(&weather_layer->layer, &weather_layer->temp_layer.layer);
 
-  /*// Add sunrise_layer*/
+  // Add sunrise_layer
   text_layer_init(&weather_layer->sunrise_layer, GRect(0, 25, WIDTH, 20));
   text_layer_set_background_color(&weather_layer->sunrise_layer, GColorBlack);
   text_layer_set_text_alignment(&weather_layer->sunrise_layer, GTextAlignmentCenter);

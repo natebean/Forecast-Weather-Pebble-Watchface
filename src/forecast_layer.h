@@ -9,9 +9,7 @@ typedef struct {
 	BmpContainer icon_layer;
 	TextLayer day_layer;
 	TextLayer temp_layer;
-	//TextLayer temp_layer_background;
 	bool has_weather_icon;
-	//char temp_str[8];
   char day_name[4];
   char temp_min[5];
   char temp_max[5];
