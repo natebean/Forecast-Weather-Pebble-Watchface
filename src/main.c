@@ -96,16 +96,16 @@ void failed(int32_t cookie, int http_status, void* context) {
 }
 
 
-void incoming_params_parser(char terms[NUM_TERMS][TERM_LEN], char* incoming)
+void incoming_params_parser()
 {
-  int found[NUM_TERMS]= {0};
+  int found[NUM_TERMS+2]= {0};
   int i, j =0, k=0;
-  for (i = 0; i < (int)strlen(incoming); i ++){
-       if (incoming[i] == '|'){
+  for (i = 0; i < (int)strlen(data_pack_string); i ++){
+       if (data_pack_string[i] == '|'){
          found[j] = i;
          j++;
        }
-      }
+  }
 
   for (k=0; k< NUM_TERMS; k++){
     int temp = found[k];
@@ -115,54 +115,55 @@ void incoming_params_parser(char terms[NUM_TERMS][TERM_LEN], char* incoming)
          left_side = found[k-1];
          left_adj = 1;
          len_adj = 1;
-    }
-    right_side = found[k];
-    int len = (right_side - left_side);
-    memcpy(&terms[k],&incoming[left_side+left_adj],len-len_adj);
+       }
+      right_side = found[k];
+      int len = (right_side - left_side);
+      memcpy(&data_packs[k],&data_pack_string[left_side+left_adj],len-len_adj);
     }
   }
 }//func
 
 void success(int32_t cookie, int http_status, DictionaryIterator* received, void* context) {
 	if(cookie != WEATHER_HTTP_COOKIE) return;
-	Tuple* data_pack_tuple = dict_find(received, 1); //only one key
-  if (data_pack_tuple){
-      strcpy(data_pack_string, data_pack_tuple->value->cstring);
-      incoming_params_parser(data_packs,data_pack_string);
-  }
-	/*Tuple* icon_tuple = dict_find(received, WEATHER_KEY_ICON);*/
+    Tuple* data_pack_tuple = dict_find(received, 1); //only one key
+    if (data_pack_tuple){
+        memcpy(data_pack_string, data_pack_tuple->value->cstring, 124);
+        incoming_params_parser();
+    }
+      static char message_string[10] = { "\0"};
+      /*memcpy(message_string,itoa(strlen(data_pack_string)),5);*/
+      memcpy(message_string,data_pack_string,8);
+      text_layer_set_text(&message_layer, message_string);
+
     int icon = atoi(data_packs[WEATHER_KEY_ICON]);
     if(icon >= 0 && icon < 10) {
       weather_layer_set_icon(&weather_layer, icon);
     } else {
       weather_layer_set_icon(&weather_layer, WEATHER_ICON_NO_WEATHER);
     }
-  /*}*/
-	/*Tuple* temperature_tuple = dict_find(received, WEATHER_KEY_TEMPERATURE);*/
-	/*if(temperature_tuple) {*/
-		weather_layer_set_temperature(&weather_layer,atoi(data_packs[WEATHER_KEY_TEMPERATURE]));
-		has_temperature = true;
-		static char time_string[] = "99:99";	
-		current_time_text(time_string,sizeof(time_string));
-		text_layer_set_text(&message_layer, time_string);
-	/*}*/
-  /*Tuple* sunrise_tuple = dict_find(received, WEATHER_KEY_SUNRISE);*/
-  /*Tuple* sunset_tuple = dict_find(received, WEATHER_KEY_SUNSET);*/
-  /*if(sunrise_tuple) {*/
-    strcpy(sunrise_string, "rise ");
-    strcat(&sunrise_string[0],data_packs[WEATHER_KEY_SUNRISE]);
-    text_layer_set_text(&weather_layer.sunrise_layer, sunrise_string);
-  /*}*/
-  /*if(sunset_tuple) {*/
-    strcpy(sunset_string, "set ");
-    strcat(&sunset_string[0],data_packs[WEATHER_KEY_SUNSET]);
-    text_layer_set_text(&weather_layer.sunset_layer, sunset_string);
-  /*}*/
-  forecast_layer_update(&today_forecast_layer,data_packs, WEATHER_KEY_TODAY_ICON,
-      WEATHER_KEY_TODAY_MIN, WEATHER_KEY_TODAY_MAX);
+    /*static char weather_temp[5];*/
+    /*memcpy(&weather_temp[0],data_packs[WEATHER_KEY_TODAY_MIN],4);*/
+    /*text_layer_set_text(&message_layer, weather_temp);*/
+		/*weather_layer_set_temperature(&weather_layer,atoi(data_packs[WEATHER_KEY_TEMPERATURE]));*/
+    has_temperature = true;
 
-  forecast_layer_update(&tom_forecast_layer,data_packs, WEATHER_KEY_TOM_ICON,
-      WEATHER_KEY_TOM_MIN, WEATHER_KEY_TOM_MAX);
+		/*static char time_string[] = "99:99";	*/
+		/*current_time_text(time_string,sizeof(time_string));*/
+		/*text_layer_set_text(&message_layer, time_string);*/
+
+    /*strcpy(sunrise_string, "rise ");*/
+    /*strcat(&sunrise_string[0],data_packs[WEATHER_KEY_SUNRISE]);*/
+    /*text_layer_set_text(&weather_layer.sunrise_layer, sunrise_string);*/
+
+    /*strcpy(sunset_string, "set ");*/
+    /*strcat(&sunset_string[0],data_packs[WEATHER_KEY_SUNSET]);*/
+    /*text_layer_set_text(&weather_layer.sunset_layer, sunset_string);*/
+
+  /*forecast_layer_update(&today_forecast_layer,data_packs, WEATHER_KEY_TODAY_ICON,*/
+      /*WEATHER_KEY_TODAY_MIN, WEATHER_KEY_TODAY_MAX);*/
+
+  /*forecast_layer_update(&tom_forecast_layer,data_packs, WEATHER_KEY_TOM_ICON,*/
+      /*WEATHER_KEY_TOM_MIN, WEATHER_KEY_TOM_MAX);*/
 
   link_monitor_handle_success();
 }
