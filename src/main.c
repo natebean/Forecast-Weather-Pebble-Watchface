@@ -49,6 +49,7 @@ const char *day_of_week[] = {"Sun", "Mon","Tues","Wed", "Thu", "Fri", "Sat"};
 char today_char[2];
 int today_int;
 int tom_int;
+/*int after_int;*/
 
 //Weather Stuff
 static int our_latitude, our_longitude;
@@ -64,6 +65,7 @@ char sunset_string[12] = "sunset";
 WeatherLayer weather_layer;
 ForecastLayer today_forecast_layer;
 ForecastLayer tom_forecast_layer;
+ForecastLayer after_forecast_layer;
 
 void request_weather();
 void current_time_text(char * output_string, int string_size);
@@ -163,7 +165,7 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
     {		
 	    string_format_time(date_text,
                            sizeof(date_text),
-                           "%a %d",
+                           "%b %d",
                            t->tick_time);
 
       string_format_time(today_forecast_layer.day_name,
@@ -179,6 +181,7 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
       today_int = util_atoi(today_char);
       /*today_int = 5;*/
       tom_int = (today_int > 5) ? 0 : today_int + 1;
+      /*after_int = (tom_int > 5) ? 0 : tom_int + 1;*/
 
       text_layer_set_text(&today_forecast_layer.day_layer,today_forecast_layer.day_name);
       strcpy(tom_forecast_layer.day_name, day_of_week[tom_int]);
@@ -242,7 +245,7 @@ void handle_init(AppContextRef ctx)
     /*text_layer_init(&time_layer, window.layer.frame);*/
     text_layer_init(&time_layer, GRect(0,0,WIDTH,30));
     text_layer_set_text_color(&time_layer, GColorWhite);
-    text_layer_set_text_alignment(&time_layer, GTextAlignmentLeft);
+    text_layer_set_text_alignment(&time_layer, GTextAlignmentCenter);
     text_layer_set_background_color(&time_layer, GColorClear);
     text_layer_set_font(&time_layer, font_hour);
     layer_add_child(&window.layer, &time_layer.layer);
