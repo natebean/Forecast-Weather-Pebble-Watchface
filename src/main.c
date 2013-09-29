@@ -160,13 +160,13 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     text_layer_set_text(&weather_layer.sunset_layer, sunset_string);
 
     forecast_layer_update(&today_forecast_layer, data_packs, WEATHER_KEY_TODAY_ICON,
-      WEATHER_KEY_TODAY_MIN, WEATHER_KEY_TODAY_MAX);
+      WEATHER_KEY_TODAY_MIN, WEATHER_KEY_TODAY_MAX, WEATHER_KEY_TODAY_MIN_TIME, WEATHER_KEY_TODAY_MAX_TIME);
 
     forecast_layer_update(&tom_forecast_layer,data_packs, WEATHER_KEY_TOM_ICON,
-      WEATHER_KEY_TOM_MIN, WEATHER_KEY_TOM_MAX);
+      WEATHER_KEY_TOM_MIN, WEATHER_KEY_TOM_MAX, 0 , 0);
 
     forecast_layer_update(&after_forecast_layer,data_packs, WEATHER_KEY_AFTER_ICON,
-      WEATHER_KEY_AFTER_MIN, WEATHER_KEY_AFTER_MAX);
+      WEATHER_KEY_AFTER_MIN, WEATHER_KEY_AFTER_MAX, 0, 0);
 
   link_monitor_handle_success();
 }
@@ -315,15 +315,15 @@ void handle_init(AppContextRef ctx)
     layer_add_child(&window.layer, &weather_layer.layer);
 
 	// Add forecast layer
-    forecast_layer_init(&today_forecast_layer, GPoint(0, 85));
+    forecast_layer_init(&today_forecast_layer, GPoint(0, 85),true);
     layer_add_child(&window.layer, &today_forecast_layer.layer);
 	
 	// Add forecast layer
-    forecast_layer_init(&tom_forecast_layer, GPoint(0, 115));
+    forecast_layer_init(&tom_forecast_layer, GPoint(0, 115),false);
     layer_add_child(&window.layer, &tom_forecast_layer.layer);
 
 	// Add forecast layer
-    forecast_layer_init(&after_forecast_layer, GPoint(0, 145));
+    forecast_layer_init(&after_forecast_layer, GPoint(0, 145), false);
     layer_add_child(&window.layer, &after_forecast_layer.layer);
 
 	http_register_callbacks((HTTPCallbacks){
