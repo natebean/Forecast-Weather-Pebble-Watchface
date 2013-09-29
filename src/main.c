@@ -98,7 +98,7 @@ void failed(int32_t cookie, int http_status, void* context) {
 
 void incoming_params_parser()
 {
-  int found[NUM_TERMS+2]= {0};
+  int found[NUM_TERMS]= {0};
   int i, j =0, k=0;
   for (i = 0; i < (int)strlen(data_pack_string); i ++){
        if (data_pack_string[i] == '|'){
@@ -107,7 +107,7 @@ void incoming_params_parser()
        }
   }
 
-  for (k=0; k< NUM_TERMS; k++){
+  for (k=0; k < NUM_TERMS; k++){
     int temp = found[k];
     int left_adj = 0, left_side = 0, right_side=0, len_adj =0;
     if (temp > 0){
@@ -118,7 +118,7 @@ void incoming_params_parser()
        }
       right_side = found[k];
       int len = (right_side - left_side);
-      memcpy(&data_packs[k],&data_pack_string[left_side+left_adj],len-len_adj);
+      memmove(&data_packs[k],&data_pack_string[left_side+left_adj],len-len_adj);
     }
   }
 }//func
@@ -127,13 +127,16 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
 	if(cookie != WEATHER_HTTP_COOKIE) return;
     Tuple* data_pack_tuple = dict_find(received, 1); //only one key
     if (data_pack_tuple){
-        memcpy(data_pack_string, data_pack_tuple->value->cstring, 124);
+
+        memmove(data_pack_string, data_pack_tuple->value->cstring, strlen(data_pack_tuple->value->cstring));
         incoming_params_parser();
-    }
-      static char message_string[10] = { "\0"};
-      /*memcpy(message_string,itoa(strlen(data_pack_string)),5);*/
-      memcpy(message_string,data_pack_string,8);
-      text_layer_set_text(&message_layer, message_string);
+
+        /*static char message_string[10] = { "\0"};*/
+        /*memmove(message_string,itoa(strlen(data_pack_string)),8);*/
+        /*memmove(message_string,itoa(strlen(data_pack_tuple->value->cstring)),5);*/
+        /*memmove(message_string,data_packs[WEATHER_KEY_ICON],strlen(data_packs[WEATHER_KEY_ICON]));*/
+        /*text_layer_set_text(&message_layer, message_string);*/
+      }
 
     int icon = atoi(data_packs[WEATHER_KEY_ICON]);
     if(icon >= 0 && icon < 10) {
@@ -141,15 +144,17 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     } else {
       weather_layer_set_icon(&weather_layer, WEATHER_ICON_NO_WEATHER);
     }
-    /*static char weather_temp[5];*/
-    /*memcpy(&weather_temp[0],data_packs[WEATHER_KEY_TODAY_MIN],4);*/
-    /*text_layer_set_text(&message_layer, weather_temp);*/
-		/*weather_layer_set_temperature(&weather_layer,atoi(data_packs[WEATHER_KEY_TEMPERATURE]));*/
+
+    static char weather_temp[6];
+    /*memmove(weather_temp,data_packs[WEATHER_KEY_TODAY_MIN],5);*/
+    memmove(weather_temp,data_packs[WEATHER_KEY_TEMPERATURE],5);
+    /*text_layer_set_text(&messge_layer, weather_temp);*/
+    weather_layer_set_temperature(&weather_layer,weather_temp);
     has_temperature = true;
 
-		/*static char time_string[] = "99:99";	*/
-		/*current_time_text(time_string,sizeof(time_string));*/
-		/*text_layer_set_text(&message_layer, time_string);*/
+    /*static char time_string[] = "99:99";	*/
+    /*current_time_text(time_string,sizeof(time_string));*/
+    /*text_layer_set_text(&message_layer, time_string);*/
 
     /*strcpy(sunrise_string, "rise ");*/
     /*strcat(&sunrise_string[0],data_packs[WEATHER_KEY_SUNRISE]);*/
@@ -303,6 +308,7 @@ void handle_init(AppContextRef ctx)
     text_layer_set_background_color(&message_layer, GColorClear);
     text_layer_set_font(&message_layer, font_small);
     text_layer_set_text_alignment(&message_layer, GTextAlignmentCenter);
+    text_layer_set_text(&message_layer,"Loading");
     layer_add_child(&message_background_layer.layer, &message_layer.layer);
 
 	// Add weather layer

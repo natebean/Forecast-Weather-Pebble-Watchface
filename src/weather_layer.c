@@ -59,8 +59,8 @@ void weather_layer_set_icon(WeatherLayer* weather_layer, WeatherIcon icon) {
   weather_layer->has_weather_icon = true;
 }
 
-void weather_layer_set_temperature(WeatherLayer* weather_layer, int16_t t) {
-	memcpy(weather_layer->temp_str, itoa(t), 4);
+void weather_layer_set_temperature(WeatherLayer* weather_layer, char *temp_str) {
+	memmove(weather_layer->temp_str, temp_str, 4);
 	int degree_pos = strlen(weather_layer->temp_str);
 	
 	if (strlen(weather_layer->temp_str) == 1 ||
