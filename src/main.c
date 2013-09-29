@@ -262,7 +262,7 @@ void handle_init(AppContextRef ctx)
     ResHandle res_small;
     ResHandle res_very_small;
 
-    window_init(&window, "Bean Weather");
+    window_init(&window, "Forecast Weather");
     window_stack_push(&window, true /* Animated */);
     window_set_background_color(&window, GColorBlack);
 
@@ -406,7 +406,7 @@ void request_weather() {
 	}
 	// Build the HTTP request
 	DictionaryIterator *body;
-	HTTPResult result = http_out_get("http://natebean.info/weather_str.php", WEATHER_HTTP_COOKIE, &body);
+	HTTPResult result = http_out_get("http://natebean.info/forecastio_weather.php", WEATHER_HTTP_COOKIE, &body);
 	if(result != HTTP_OK) {
 		weather_layer_set_icon(&weather_layer, WEATHER_ICON_NO_WEATHER);
 		return;
