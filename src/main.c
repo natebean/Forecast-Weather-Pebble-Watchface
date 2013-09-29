@@ -19,7 +19,7 @@ PBL_APP_INFO(MY_UUID,
              APP_INFO_WATCH_FACE);
 
 #define WIDTH 75
-static const int mod_minute_weather = 15;
+static const int mod_minute_weather = 30;
 static const int mod_minute_check = 6;
 
 // POST variables
