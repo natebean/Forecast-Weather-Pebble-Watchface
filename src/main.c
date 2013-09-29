@@ -45,7 +45,7 @@ GFont font_small;      /* font for minute */
 GFont font_very_small;      /* font for minute */
 
 static int initial_minute;
-const char *day_of_week[] = {"Sun", "Mon","Tues","Wed", "Thu", "Fri", "Sat"};
+const char *day_of_week[] = {"Sun", "Mon","Tue","Wed", "Thu", "Fri", "Sat"};
 char today_char[2];
 int today_int;
 int tom_int;
@@ -300,6 +300,7 @@ void handle_init(AppContextRef ctx)
     text_layer_init(&message_background_layer, GRect(0,58,144,20));
     text_layer_set_background_color(&message_background_layer, GColorWhite);
     layer_add_child(&window.layer, &message_background_layer.layer);
+    //Powered by Forecast
 
 	//Add message layer
     text_layer_init(&message_layer, GRect(0,2,144,20));
@@ -307,7 +308,7 @@ void handle_init(AppContextRef ctx)
     text_layer_set_background_color(&message_layer, GColorClear);
     text_layer_set_font(&message_layer, font_small);
     text_layer_set_text_alignment(&message_layer, GTextAlignmentCenter);
-    text_layer_set_text(&message_layer,"Loading");
+    text_layer_set_text(&message_layer,"Powered Forecast");
     layer_add_child(&message_background_layer.layer, &message_layer.layer);
 
 	// Add weather layer
