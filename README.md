@@ -6,6 +6,7 @@ Pebble watch face using the forecast.io API.
 
 <img src="http://natebean.info/pebble_screen_shot.png">
 
+You will need a server backend, added soon.
 
 Shows the following:
 --------------------
