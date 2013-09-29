@@ -13,6 +13,7 @@ Shows the following:
   * Date
   * Current Weather with icon
   * Sunrise and sunset
+  * Last time updated or messages
   * Forecast for today
      * Icon
      * Min/Max Temp
