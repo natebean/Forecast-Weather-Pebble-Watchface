@@ -13,7 +13,7 @@
 #define MY_UUID { 0x91, 0x41, 0xB6, 0x28, 0xBC, 0x89, 0x49, 0x8E, 0xB1, 0x47, 0x04, 0x9F, 0x49, 0xC0, 0x99, 0xAD }
 
 PBL_APP_INFO(MY_UUID,
-			"Bean Weather", "Nate Bean", // Modification of "Roboto Weather" by Martin Rosinski
+			"Forecast Weather", "Nate Bean", // Modification of "Roboto Weather" by Martin Rosinski
              1, 0, /* App version */
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
@@ -308,7 +308,7 @@ void handle_init(AppContextRef ctx)
     text_layer_set_background_color(&message_layer, GColorClear);
     text_layer_set_font(&message_layer, font_small);
     text_layer_set_text_alignment(&message_layer, GTextAlignmentCenter);
-    text_layer_set_text(&message_layer,"Powered Forecast");
+    text_layer_set_text(&message_layer,"Forecast.io Power");
     layer_add_child(&message_background_layer.layer, &message_layer.layer);
 
 	// Add weather layer

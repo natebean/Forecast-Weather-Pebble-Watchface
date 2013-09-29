@@ -36,20 +36,6 @@
             "file": "fonts/futura.ttf"
         },
         {
-            "trackingAdjust": -4,
-            "characterRegex": "[0-9:\u00b0 -]",
-            "defName": "FUTURA_40",
-            "type": "font",
-            "file": "fonts/futura.ttf"
-        },
-        {
-            "trackingAdjust": -4,
-            "characterRegex": "[0-9:\u00b0 -]",
-            "defName": "FUTURA_35",
-            "type": "font",
-            "file": "fonts/futura.ttf"
-        },
-        {
             "defName": "ICON_WIND",
             "type": "png",
             "file": "images/wind.png"
@@ -107,12 +93,7 @@
         {
             "defName": "IMAGE_MENU_ICON",
             "type": "png",
-            "file": "images/menu_icon_roboto.png"
-        },
-        {
-            "defName": "FUTURA_CONDENSED_53",
-            "type": "font",
-            "file": "fonts/futura_condensed_bold-webfont.ttf"
+            "file": "images/menu_icon.png"
         }
     ],
     "friendlyVersion": "VERSION",
