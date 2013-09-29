@@ -49,6 +49,8 @@ const char *day_of_week[] = {"Sun", "Mon","Tues","Wed", "Thu", "Fri", "Sat"};
 char today_char[2];
 int today_int;
 int tom_int;
+int after_int;
+
 char data_pack_string[124] = { "\0"};
 char data_packs[NUM_TERMS][TERM_LEN] = {"\0"};
 
@@ -131,44 +133,40 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
         memmove(data_pack_string, data_pack_tuple->value->cstring, strlen(data_pack_tuple->value->cstring));
         incoming_params_parser();
 
-        /*static char message_string[10] = { "\0"};*/
-        /*memmove(message_string,itoa(strlen(data_pack_string)),8);*/
-        /*memmove(message_string,itoa(strlen(data_pack_tuple->value->cstring)),5);*/
-        /*memmove(message_string,data_packs[WEATHER_KEY_ICON],strlen(data_packs[WEATHER_KEY_ICON]));*/
-        /*text_layer_set_text(&message_layer, message_string);*/
       }
 
-    int icon = atoi(data_packs[WEATHER_KEY_ICON]);
+    int icon;
+    icon = util_atoi(data_packs[WEATHER_KEY_ICON]);
+
     if(icon >= 0 && icon < 10) {
       weather_layer_set_icon(&weather_layer, icon);
     } else {
       weather_layer_set_icon(&weather_layer, WEATHER_ICON_NO_WEATHER);
     }
 
-    static char weather_temp[6];
-    /*memmove(weather_temp,data_packs[WEATHER_KEY_TODAY_MIN],5);*/
-    memmove(weather_temp,data_packs[WEATHER_KEY_TEMPERATURE],5);
-    /*text_layer_set_text(&messge_layer, weather_temp);*/
-    weather_layer_set_temperature(&weather_layer,weather_temp);
+    weather_layer_set_temperature(&weather_layer,data_packs[WEATHER_KEY_TEMPERATURE]);
     has_temperature = true;
 
-    /*static char time_string[] = "99:99";	*/
-    /*current_time_text(time_string,sizeof(time_string));*/
-    /*text_layer_set_text(&message_layer, time_string);*/
+    static char time_string[] = "99:99";	
+    current_time_text(time_string,sizeof(time_string));
+    text_layer_set_text(&message_layer, time_string);
 
-    /*strcpy(sunrise_string, "rise ");*/
-    /*strcat(&sunrise_string[0],data_packs[WEATHER_KEY_SUNRISE]);*/
-    /*text_layer_set_text(&weather_layer.sunrise_layer, sunrise_string);*/
+    strcpy(sunrise_string, "rise ");
+    strcat(&sunrise_string[0],data_packs[WEATHER_KEY_SUNRISE]);
+    text_layer_set_text(&weather_layer.sunrise_layer, sunrise_string);
 
-    /*strcpy(sunset_string, "set ");*/
-    /*strcat(&sunset_string[0],data_packs[WEATHER_KEY_SUNSET]);*/
-    /*text_layer_set_text(&weather_layer.sunset_layer, sunset_string);*/
+    strcpy(sunset_string, " set ");
+    strcat(&sunset_string[0],data_packs[WEATHER_KEY_SUNSET]);
+    text_layer_set_text(&weather_layer.sunset_layer, sunset_string);
 
-  /*forecast_layer_update(&today_forecast_layer,data_packs, WEATHER_KEY_TODAY_ICON,*/
-      /*WEATHER_KEY_TODAY_MIN, WEATHER_KEY_TODAY_MAX);*/
+    forecast_layer_update(&today_forecast_layer, data_packs, WEATHER_KEY_TODAY_ICON,
+      WEATHER_KEY_TODAY_MIN, WEATHER_KEY_TODAY_MAX);
 
-  /*forecast_layer_update(&tom_forecast_layer,data_packs, WEATHER_KEY_TOM_ICON,*/
-      /*WEATHER_KEY_TOM_MIN, WEATHER_KEY_TOM_MAX);*/
+    forecast_layer_update(&tom_forecast_layer,data_packs, WEATHER_KEY_TOM_ICON,
+      WEATHER_KEY_TOM_MIN, WEATHER_KEY_TOM_MAX);
+
+    forecast_layer_update(&after_forecast_layer,data_packs, WEATHER_KEY_AFTER_ICON,
+      WEATHER_KEY_AFTER_MIN, WEATHER_KEY_AFTER_MAX);
 
   link_monitor_handle_success();
 }
@@ -218,13 +216,14 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
                            t->tick_time);
 
       today_int = util_atoi(today_char);
-      /*today_int = 5;*/
       tom_int = (today_int > 5) ? 0 : today_int + 1;
-      /*after_int = (tom_int > 5) ? 0 : tom_int + 1;*/
+      after_int = (tom_int > 5) ? 0 : tom_int + 1;
 
       text_layer_set_text(&today_forecast_layer.day_layer,today_forecast_layer.day_name);
       strcpy(tom_forecast_layer.day_name, day_of_week[tom_int]);
       text_layer_set_text(&tom_forecast_layer.day_layer,tom_forecast_layer.day_name);
+      strcpy(after_forecast_layer.day_name, day_of_week[after_int]);
+      text_layer_set_text(&after_forecast_layer.day_layer,after_forecast_layer.day_name);
 
 		if (date_text[4] == '0') /* is day of month < 10? */
 		{
@@ -322,6 +321,10 @@ void handle_init(AppContextRef ctx)
 	// Add forecast layer
     forecast_layer_init(&tom_forecast_layer, GPoint(0, 115));
     layer_add_child(&window.layer, &tom_forecast_layer.layer);
+
+	// Add forecast layer
+    forecast_layer_init(&after_forecast_layer, GPoint(0, 145));
+    layer_add_child(&window.layer, &after_forecast_layer.layer);
 
 	http_register_callbacks((HTTPCallbacks){
 		.failure=failed,

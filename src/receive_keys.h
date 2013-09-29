@@ -12,8 +12,13 @@
 #define WEATHER_KEY_TOM_MIN 7 //tomorrow
 #define WEATHER_KEY_TOM_MAX 8
 #define WEATHER_KEY_TOM_ICON 9
+#define WEATHER_KEY_AFTER_MIN 10
+#define WEATHER_KEY_AFTER_MAX 11
+#define WEATHER_KEY_AFTER_ICON 12
 
-#define NUM_TERMS 12
+#define NUM_TERMS 14
 #define TERM_LEN 8
+
+
 
 #endif
