@@ -78,12 +78,14 @@ void failed(int32_t cookie, int http_status, void* context) {
 		if (http_status== 1002 || http_status == 1064){
 		  static char time_string[] = "99:99";	
 		  current_time_text(time_string, sizeof(time_string));
-		  static char output_string[10] = "R 99:99";
-		  memmove(&output_string[2], &time_string,sizeof(time_string)-1);
+		  static char output_string[18] = "Retrying: ";
+      strcat(&output_string[0],time_string);
+			/*memmove(&output_string[2], &time_string,sizeof(time_string)-1);*/
 		  text_layer_set_text(&message_layer, output_string);
 
 		  located = false;
 		  request_weather();
+
 		}else if (http_status==1008){
 	      text_layer_set_text(&message_layer, "Disconnected");
 		  located = false;
@@ -149,7 +151,9 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
 
     static char time_string[] = "99:99";	
     current_time_text(time_string,sizeof(time_string));
-    text_layer_set_text(&message_layer, time_string);
+    static char message_string[16] = "Updated: ";
+    strcat(&message_string[0],time_string);
+    text_layer_set_text(&message_layer, message_string);
 
     strcpy(sunrise_string, "rise ");
     strcat(&sunrise_string[0],data_packs[WEATHER_KEY_SUNRISE]);
