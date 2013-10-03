@@ -63,23 +63,23 @@ void weather_layer_set_temperature(WeatherLayer* weather_layer, char* temp_str) 
 	memmove(weather_layer->temp_str, temp_str, 4);
   int degree_pos = strlen(weather_layer->temp_str);
   
-  if (strlen(weather_layer->temp_str) == 1 ||
-    (strlen(weather_layer->temp_str) == 2 && weather_layer->temp_str[0] != '1')) {
-    // Don't move temperature if between 0-9° or 20°-99°
+  /*if (strlen(weather_layer->temp_str) == 1 ||*/
+    /*(strlen(weather_layer->temp_str) == 2 && weather_layer->temp_str[0] != '1')) {*/
+    /*// Don't move temperature if between 0-9° or 20°-99°*/
+    /*text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));*/
+    /*text_layer_set_text_alignment(&weather_layer->temp_layer, GTextAlignmentCenter);*/
+    /*memmove(&weather_layer->temp_str[degree_pos], "°", 3);*/
+  /*} else if (strlen(weather_layer->temp_str) == 2 && weather_layer->temp_str[0] == '1') {*/
+    /*// Move temperature slightly to the left if between 10°-19°*/
+    /*text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));*/
+    /*text_layer_set_text_alignment(&weather_layer->temp_layer, GTextAlignmentLeft);*/
+    /*memmove(&weather_layer->temp_str[degree_pos], "°", 3); */
+  /*} else if (strlen(weather_layer->temp_str) > 2) { */
+    /*// Shrink font size if above 99° or below -9°*/
     text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));
     text_layer_set_text_alignment(&weather_layer->temp_layer, GTextAlignmentCenter);
     memmove(&weather_layer->temp_str[degree_pos], "°", 3);
-  } else if (strlen(weather_layer->temp_str) == 2 && weather_layer->temp_str[0] == '1') {
-    // Move temperature slightly to the left if between 10°-19°
-    text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));
-    text_layer_set_text_alignment(&weather_layer->temp_layer, GTextAlignmentLeft);
-    memmove(&weather_layer->temp_str[degree_pos], "°", 3); 
-  } else if (strlen(weather_layer->temp_str) > 2) { 
-    // Shrink font size if above 99° or below -9°
-    text_layer_set_font(&weather_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));
-    text_layer_set_text_alignment(&weather_layer->temp_layer, GTextAlignmentCenter);
-    memmove(&weather_layer->temp_str[degree_pos], "°", 3);
-  }
+  /*}*/
 	
 	text_layer_set_text(&weather_layer->temp_layer, weather_layer->temp_str);
 }

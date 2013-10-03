@@ -19,7 +19,7 @@ PBL_APP_INFO(MY_UUID,
              APP_INFO_WATCH_FACE);
 
 #define WIDTH 75
-static const int mod_minute_weather = 30;
+static const int mod_minute_weather = 20;
 static const int mod_minute_check = 6;
 
 // POST variables
@@ -78,7 +78,8 @@ void failed(int32_t cookie, int http_status, void* context) {
 		if (http_status== 1002 || http_status == 1064){
 		  static char time_string[] = "99:99";	
 		  current_time_text(time_string, sizeof(time_string));
-		  static char output_string[18] = "Retrying: ";
+		  static char output_string[18] = "\0";
+      strcpy(output_string, "Retrying: ");
       strcat(&output_string[0],time_string);
 			/*memmove(&output_string[2], &time_string,sizeof(time_string)-1);*/
 		  text_layer_set_text(&message_layer, output_string);
@@ -149,9 +150,10 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     weather_layer_set_temperature(&weather_layer,data_packs[WEATHER_KEY_TEMPERATURE]);
     has_temperature = true;
 
-    static char time_string[] = "99:99";	
+    static char time_string[6] = "99:99";	
     current_time_text(time_string,sizeof(time_string));
-    static char message_string[16] = "Updated: ";
+    static char message_string[16] = "\0";
+    strcpy(message_string, "Updated: ");
     strcat(&message_string[0],time_string);
     text_layer_set_text(&message_layer, message_string);
 
@@ -172,7 +174,7 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     forecast_layer_update(&after_forecast_layer,data_packs, WEATHER_KEY_AFTER_ICON,
       WEATHER_KEY_AFTER_MIN, WEATHER_KEY_AFTER_MAX, 0, 0);
 
-  link_monitor_handle_success();
+    link_monitor_handle_success();
 }
 
 void location(float latitude, float longitude, float altitude, float accuracy, void* context) {
@@ -376,6 +378,10 @@ void handle_deinit(AppContextRef ctx)
     fonts_unload_custom_font(font_very_small);
 	
 	  weather_layer_deinit(&weather_layer);
+	  forecast_layer_deinit(&today_forecast_layer);
+	  forecast_layer_deinit(&tom_forecast_layer);
+	  forecast_layer_deinit(&after_forecast_layer);
+
 }
 
 
@@ -408,6 +414,7 @@ void request_weather() {
 		http_location_request();
 		return;
 	}
+  located = false; //get location every time;
 	// Build the HTTP request
 	DictionaryIterator *body;
 	HTTPResult result = http_out_get("http://natebean.info/forecastio_weather.php", WEATHER_HTTP_COOKIE, &body);
