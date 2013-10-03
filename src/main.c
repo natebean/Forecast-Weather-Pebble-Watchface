@@ -14,7 +14,7 @@
 
 PBL_APP_INFO(MY_UUID,
 			"Forecast Weather", "Nate Bean", // Modification of "Roboto Weather" by Martin Rosinski
-             1, 0, /* App version */
+             1, 1, /* App version */
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
 
