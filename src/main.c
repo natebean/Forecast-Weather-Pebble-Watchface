@@ -13,8 +13,8 @@
 #define MY_UUID { 0x91, 0x41, 0xB6, 0x28, 0xBC, 0x89, 0x49, 0x8E, 0xB1, 0x47, 0x04, 0x9F, 0x49, 0xC0, 0x99, 0xAD }
 
 PBL_APP_INFO(MY_UUID,
-			"Forecast Weather", "Nate Bean", // Modification of "Roboto Weather" by Martin Rosinski
-             1, 1, /* App version */
+			"Now Weather", "Nate Bean", // Modification of "Roboto Weather" by Martin Rosinski
+             1, 0, /* App version */
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
 
@@ -45,8 +45,9 @@ GFont font_small;      /* font for minute */
 GFont font_very_small;      /* font for minute */
 
 static int initial_minute;
-const char *day_of_week[] = {"Sun", "Mon","Tue","Wed", "Thu", "Fri", "Sat"};
+/*const char *day_of_week[] = {"Sun", "Mon","Tue","Wed", "Thu", "Fri", "Sat"};*/
 char today_char[2];
+char am_pm_char[2];
 int today_int;
 int tom_int;
 int after_int;
@@ -66,9 +67,9 @@ char sunrise_string[12] = "sunrise";
 char sunset_string[12] = "sunset";
 
 WeatherLayer weather_layer;
-ForecastLayer today_forecast_layer;
-ForecastLayer tom_forecast_layer;
-ForecastLayer after_forecast_layer;
+ForecastLayer now_forecast_layer;
+ForecastLayer next_forecast_layer;
+ForecastLayer third_forecast_layer;
 
 void request_weather();
 void current_time_text(char * output_string, int string_size);
@@ -153,7 +154,11 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     static char time_string[6] = "99:99";	
     current_time_text(time_string,sizeof(time_string));
     static char message_string[16] = "\0";
-    strcpy(message_string, "Updated: ");
+    if (data_packs[WEATHER_KEY_CACHE][0] == '0'){
+      strcpy(message_string, "Updated: ");
+    }else{
+      strcpy(message_string, "Cached: ");
+    }
     strcat(&message_string[0],time_string);
     text_layer_set_text(&message_layer, message_string);
 
@@ -165,14 +170,14 @@ void success(int32_t cookie, int http_status, DictionaryIterator* received, void
     strcat(&sunset_string[0],data_packs[WEATHER_KEY_SUNSET]);
     text_layer_set_text(&weather_layer.sunset_layer, sunset_string);
 
-    forecast_layer_update(&today_forecast_layer, data_packs, WEATHER_KEY_TODAY_ICON,
-      WEATHER_KEY_TODAY_MIN, WEATHER_KEY_TODAY_MAX, WEATHER_KEY_TODAY_MIN_TIME, WEATHER_KEY_TODAY_MAX_TIME);
+    forecast_layer_update(&now_forecast_layer, data_packs, WEATHER_KEY_THIS_HOUR_TIME,  WEATHER_KEY_THIS_HOUR_ICON,
+      WEATHER_KEY_THIS_HOUR_TEMP, WEATHER_KEY_THIS_HOUR_PROB, 0, 0);
 
-    forecast_layer_update(&tom_forecast_layer,data_packs, WEATHER_KEY_TOM_ICON,
-      WEATHER_KEY_TOM_MIN, WEATHER_KEY_TOM_MAX, 0 , 0);
+    forecast_layer_update(&next_forecast_layer,data_packs,WEATHER_KEY_NEXT_HOUR_TIME,  WEATHER_KEY_NEXT_HOUR_ICON,
+      WEATHER_KEY_NEXT_HOUR_TEMP, WEATHER_KEY_NEXT_HOUR_PROB,  0 , 0);
 
-    forecast_layer_update(&after_forecast_layer,data_packs, WEATHER_KEY_AFTER_ICON,
-      WEATHER_KEY_AFTER_MIN, WEATHER_KEY_AFTER_MAX, 0, 0);
+    forecast_layer_update(&third_forecast_layer,data_packs,WEATHER_KEY_THIRD_HOUR_TIME,  WEATHER_KEY_THIRD_HOUR_ICON,
+      WEATHER_KEY_THIRD_HOUR_TEMP, WEATHER_KEY_THIRD_HOUR_PROB, 0, 0);
 
     link_monitor_handle_success();
 }
@@ -211,25 +216,32 @@ void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t)
                            "%b %d",
                            t->tick_time);
 
-      string_format_time(today_forecast_layer.day_name,
-                           sizeof(today_forecast_layer.day_name),
-                           "%a",
-                           t->tick_time);
+      /*string_format_time(now_forecast_layer.day_name,*/
+                           /*sizeof(now_forecast_layer.day_name),*/
+                           /*"%l%P",*/
+                           /*t->tick_time);*/
 
-      string_format_time(today_char,
-                           sizeof(today_char),
-                           "%w",
-                           t->tick_time);
+      /*string_format_time(today_char,*/
+                           /*sizeof(today_char),*/
+                           /*"%I",*/
+                           /*t->tick_time);*/
 
-      today_int = util_atoi(today_char);
-      tom_int = (today_int > 5) ? 0 : today_int + 1;
-      after_int = (tom_int > 5) ? 0 : tom_int + 1;
+      /*string_format_time(am_pm_char,*/
+                           /*sizeof(today_char),*/
+                           /*"%P",*/
+                           /*t->tick_time);*/
 
-      text_layer_set_text(&today_forecast_layer.day_layer,today_forecast_layer.day_name);
-      strcpy(tom_forecast_layer.day_name, day_of_week[tom_int]);
-      text_layer_set_text(&tom_forecast_layer.day_layer,tom_forecast_layer.day_name);
-      strcpy(after_forecast_layer.day_name, day_of_week[after_int]);
-      text_layer_set_text(&after_forecast_layer.day_layer,after_forecast_layer.day_name);
+      /*text_layer_set_text(&now_forecast_layer.day_layer,now_forecast_layer.day_name);*/
+
+      /*today_int = util_atoi(today_char);*/
+      /*tom_int = (today_int > 11) ? 1 : today_int + 1;*/
+      /*after_int = (tom_int > 11) ? 1 : tom_int + 1;*/
+
+      /*strcpy(next_forecast_layer.day_name, today_char);*/
+      /*text_layer_set_text(&next_forecast_layer.day_layer,next_forecast_layer.day_name);*/
+
+      /*strcpy(third_forecast_layer.day_name,itoa(after_int));*/
+      /*text_layer_set_text(&third_forecast_layer.day_layer,third_forecast_layer.day_name);*/
 
 		if (date_text[4] == '0') /* is day of month < 10? */
 		{
@@ -268,7 +280,7 @@ void handle_init(AppContextRef ctx)
     ResHandle res_small;
     ResHandle res_very_small;
 
-    window_init(&window, "Forecast Weather");
+    window_init(&window, "Now Weather");
     window_stack_push(&window, true /* Animated */);
     window_set_background_color(&window, GColorBlack);
 
@@ -322,16 +334,16 @@ void handle_init(AppContextRef ctx)
     layer_add_child(&window.layer, &weather_layer.layer);
 
 	// Add forecast layer
-    forecast_layer_init(&today_forecast_layer, GPoint(0, 85),true);
-    layer_add_child(&window.layer, &today_forecast_layer.layer);
+    forecast_layer_init(&now_forecast_layer, GPoint(0, 85),false);
+    layer_add_child(&window.layer, &now_forecast_layer.layer);
 	
 	// Add forecast layer
-    forecast_layer_init(&tom_forecast_layer, GPoint(0, 115),false);
-    layer_add_child(&window.layer, &tom_forecast_layer.layer);
+    forecast_layer_init(&next_forecast_layer, GPoint(0, 115),false);
+    layer_add_child(&window.layer, &next_forecast_layer.layer);
 
 	// Add forecast layer
-    forecast_layer_init(&after_forecast_layer, GPoint(0, 145), false);
-    layer_add_child(&window.layer, &after_forecast_layer.layer);
+    forecast_layer_init(&third_forecast_layer, GPoint(0, 145), false);
+    layer_add_child(&window.layer, &third_forecast_layer.layer);
 
 	http_register_callbacks((HTTPCallbacks){
 		.failure=failed,
@@ -378,9 +390,9 @@ void handle_deinit(AppContextRef ctx)
     fonts_unload_custom_font(font_very_small);
 	
 	  weather_layer_deinit(&weather_layer);
-	  forecast_layer_deinit(&today_forecast_layer);
-	  forecast_layer_deinit(&tom_forecast_layer);
-	  forecast_layer_deinit(&after_forecast_layer);
+	  forecast_layer_deinit(&now_forecast_layer);
+	  forecast_layer_deinit(&next_forecast_layer);
+	  forecast_layer_deinit(&third_forecast_layer);
 
 }
 
@@ -417,7 +429,7 @@ void request_weather() {
   located = false; //get location every time;
 	// Build the HTTP request
 	DictionaryIterator *body;
-	HTTPResult result = http_out_get("http://natebean.info/forecastio_weather.php", WEATHER_HTTP_COOKIE, &body);
+	HTTPResult result = http_out_get("http://natebean.info/now_weather.php", WEATHER_HTTP_COOKIE, &body);
 	if(result != HTTP_OK) {
 		weather_layer_set_icon(&weather_layer, WEATHER_ICON_NO_WEATHER);
 		return;

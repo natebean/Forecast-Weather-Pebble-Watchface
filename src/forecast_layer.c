@@ -20,11 +20,11 @@ void forecast_layer_init(ForecastLayer* forecast_layer, GPoint pos, bool time_bo
     temp_y = 5;
   }
   // Add day layer
-	text_layer_init(&forecast_layer->day_layer, GRect(0, 0, 44, 20));
+	text_layer_init(&forecast_layer->day_layer, GRect(0, temp_y, 55, 20));
 	text_layer_set_background_color(&forecast_layer->day_layer, GColorClear);
 	text_layer_set_text_alignment(&forecast_layer->day_layer, GTextAlignmentCenter);
 	text_layer_set_text_color(&forecast_layer->day_layer, GColorWhite);
-	text_layer_set_font(&forecast_layer->day_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_18)));
+	text_layer_set_font(&forecast_layer->day_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_14)));
 	layer_add_child(&forecast_layer->layer, &forecast_layer->day_layer.layer);
 
   // Add temperature layer
@@ -66,7 +66,7 @@ void forecast_layer_set_icon(ForecastLayer* forecast_layer, WeatherIcon icon) {
   // Add weather icon
   bmp_init_container(WEATHER_ICONS[icon], &forecast_layer->icon_layer);
   layer_add_child(&forecast_layer->layer, &forecast_layer->icon_layer.layer.layer);
-  layer_set_frame(&forecast_layer->icon_layer.layer.layer, GRect(50,0, 25, 25));
+  layer_set_frame(&forecast_layer->icon_layer.layer.layer, GRect(50,-2, 25, 25));
   forecast_layer->has_weather_icon = true;
 }
 
@@ -76,7 +76,7 @@ void forecast_layer_deinit(ForecastLayer* forecast_layer) {
 }
 
 void forecast_layer_update(ForecastLayer* forecast_layer,char data_packs[NUM_TERMS][TERM_LEN] ,
-  int icon_key, int min_temp_key, int max_temp_key, int min_time_key, int max_time_key){
+  int time_key, int icon_key, int temp_key, int precip_prob_key, int min_time_key, int max_time_key){
 
     int icon = util_atoi(data_packs[icon_key]);
     if(icon >= 0 && icon < 10) {
@@ -85,15 +85,20 @@ void forecast_layer_update(ForecastLayer* forecast_layer,char data_packs[NUM_TER
       forecast_layer_set_icon(forecast_layer, WEATHER_ICON_NO_WEATHER);
     }
 
-    memmove(forecast_layer->temp_min, data_packs[min_temp_key], 4);
-    memmove(forecast_layer->temp_max, data_packs[max_temp_key], 4);
+    memmove(forecast_layer->day_name, data_packs[time_key], 4);
+    memmove(forecast_layer->temp, data_packs[temp_key], 4);
+    memmove(forecast_layer->precip_prob, data_packs[precip_prob_key], 4);
 
-  if(forecast_layer->temp_min && forecast_layer->temp_max){
-    strcpy(forecast_layer->min_max_string,"");
-    strcat(&(forecast_layer->min_max_string[0]),&(forecast_layer->temp_min[0]));
-    strcat(&(forecast_layer->min_max_string[0]),"/");
-    strcat(&(forecast_layer->min_max_string[0]),&(forecast_layer->temp_max[0]));
-    text_layer_set_text(&forecast_layer->temp_layer, forecast_layer->min_max_string);
+  if(forecast_layer->temp && forecast_layer->precip_prob){
+    strcpy(forecast_layer->output_string,"");
+    strcat(&(forecast_layer->output_string[0]),&(forecast_layer->precip_prob[0]));
+    strcat(&(forecast_layer->output_string[0]),"% ");
+    strcat(&(forecast_layer->output_string[0]),&(forecast_layer->temp[0]));
+    text_layer_set_text(&forecast_layer->temp_layer, forecast_layer->output_string);
+  }
+
+  if (forecast_layer->day_name){
+    text_layer_set_text(&forecast_layer->day_layer, forecast_layer->day_name);
   }
 
   if (forecast_layer->time_bool)

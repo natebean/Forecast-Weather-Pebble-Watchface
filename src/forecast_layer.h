@@ -11,10 +11,10 @@ typedef struct {
 	TextLayer temp_layer;
 	TextLayer temp_time_layer;
 	bool has_weather_icon;
-  char day_name[4];
-  char temp_min[5];
-  char temp_max[5];
-  char min_max_string[12];
+  char day_name[8];
+  char precip_prob[5];
+  char temp[5];
+  char output_string[12];
   bool time_bool;
   char time_min[8];
   char time_max[8];
@@ -26,6 +26,6 @@ void forecast_layer_init(ForecastLayer* forecast_layer, GPoint pos, bool time_bo
 void forecast_layer_deinit(ForecastLayer* forecast_layer);
 void forecast_layer_set_icon(ForecastLayer* forecast_layer, WeatherIcon icon);
 void forecast_layer_update(ForecastLayer* forecast_layer,char data_packs[NUM_TERMS][TERM_LEN],
-  int icon_key, int min_temp_key, int max_temp_key, int min_time_key, int max_time_key);
+  int time_key, int icon_key, int min_temp_key, int max_temp_key, int min_time_key, int max_time_key);
 
 #endif

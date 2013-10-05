@@ -27,16 +27,23 @@ char *itoa(int i)
   return p;
 }
 
+
 int util_atoi(char *str)
 {
-   int res = 0; // Initialize result
+  int res = 0; // Initialize result
+  int i = 0;
+  int start_ptr = 0;
 
-    // Iterate through all characters of input string and update
+
+    if (str[0] == '0' || str[0] == ' '){
+      start_ptr = 1;
+    }
+    //Iterate through all characters of input string and update
     // result
-   for (int i = 0; str[i] != '\0'; ++i)
-           res = res*10 + str[i] - '0';
-               // return result.
-      return res;
+    for (i = start_ptr; str[i] != '\0'; ++i)
+      res = res*10 + str[i] - '0';
+   // return result.
+   return res;
 }
 
 
