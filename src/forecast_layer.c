@@ -33,7 +33,7 @@ void forecast_layer_init(ForecastLayer* forecast_layer, GPoint pos, bool time_bo
 	text_layer_set_text_alignment(&forecast_layer->temp_layer, GTextAlignmentCenter);
 	text_layer_set_text_color(&forecast_layer->temp_layer, GColorWhite);
 	text_layer_set_font(&forecast_layer->temp_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FUTURA_14)));
-  text_layer_set_text(&forecast_layer->temp_layer, "000/000");
+  /*text_layer_set_text(&forecast_layer->temp_layer, "000/000");*/
 	layer_add_child(&forecast_layer->layer, &forecast_layer->temp_layer.layer);
 
   if (time_bool)
@@ -66,7 +66,7 @@ void forecast_layer_set_icon(ForecastLayer* forecast_layer, WeatherIcon icon) {
   // Add weather icon
   bmp_init_container(WEATHER_ICONS[icon], &forecast_layer->icon_layer);
   layer_add_child(&forecast_layer->layer, &forecast_layer->icon_layer.layer.layer);
-  layer_set_frame(&forecast_layer->icon_layer.layer.layer, GRect(50,-2, 25, 25));
+  layer_set_frame(&forecast_layer->icon_layer.layer.layer, GRect(50,0, 25, 27));
   forecast_layer->has_weather_icon = true;
 }
 

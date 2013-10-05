@@ -334,15 +334,15 @@ void handle_init(AppContextRef ctx)
     layer_add_child(&window.layer, &weather_layer.layer);
 
 	// Add forecast layer
-    forecast_layer_init(&now_forecast_layer, GPoint(0, 85),false);
+    forecast_layer_init(&now_forecast_layer, GPoint(0, 80),false);
     layer_add_child(&window.layer, &now_forecast_layer.layer);
 	
 	// Add forecast layer
-    forecast_layer_init(&next_forecast_layer, GPoint(0, 115),false);
+    forecast_layer_init(&next_forecast_layer, GPoint(0, 111),false);
     layer_add_child(&window.layer, &next_forecast_layer.layer);
 
 	// Add forecast layer
-    forecast_layer_init(&third_forecast_layer, GPoint(0, 145), false);
+    forecast_layer_init(&third_forecast_layer, GPoint(0, 142), false);
     layer_add_child(&window.layer, &third_forecast_layer.layer);
 
 	http_register_callbacks((HTTPCallbacks){
