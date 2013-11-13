@@ -14,7 +14,7 @@
 
 PBL_APP_INFO(MY_UUID,
 			"Forecast Weather", "Nate Bean", // Modification of "Roboto Weather" by Martin Rosinski
-             1, 1, /* App version */
+             1, 2, /* App version */
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
 
@@ -356,7 +356,7 @@ void current_time_text(char * output_string, int string_size){
 	  get_time(&tm);
     t.tick_time = &tm;
 	
-    string_format_time(output_string, string_size, "%I:%M", t.tick_time);
+    string_format_time(output_string, string_size, (clock_is_24h_style()) ? "%H:%M" : "%I:%M", t.tick_time);
 	
 	if (output_string[0] == '0')
 	{
